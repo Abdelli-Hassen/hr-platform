@@ -1,0 +1,51 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Plateforme RH</h1>
+      <p>Gestion du Personnel</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="votre.email@hrplatform.tn"
+          class="form-control"
+        />
+        <span class="error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          Email valide requis
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Votre mot de passe"
+          class="form-control"
+        />
+        <span class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Mot de passe requis
+        </span>
+      </div>
+
+      <button type="submit" class="login-button" [disabled]="!loginForm.valid || loading">
+        <span *ngIf="!loading">Se connecter</span>
+        <span *ngIf="loading">Connexion en cours...</span>
+      </button>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+    </form>
+
+    <div class="demo-accounts">
+      <p>Comptes de démonstration:</p>
+      <p><strong>Admin:</strong> admin@hrplatform.tn</p>
+      <p><strong>Employé:</strong> m.benali@hrplatform.tn</p>
+    </div>
+  </div>
+</div>

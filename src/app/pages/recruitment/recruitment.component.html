@@ -1,0 +1,249 @@
+<div class="recruitment-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Recrutement</h1>
+      <p>Gérez les offres d'emploi et les candidatures</p>
+    </div>
+    <button 
+      class="btn btn-primary" 
+      (click)="openJobForm()"
+      *ngIf="!showJobForm && activeTab === 'jobs'"
+    >
+      + Nouvelle Offre
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'jobs'"
+      (click)="switchTab('jobs')"
+      class="tab-btn"
+    >
+      Offres d'Emploi
+    </button>
+    <button 
+      [class.active]="activeTab === 'candidates'"
+      (click)="switchTab('candidates')"
+      class="tab-btn"
+    >
+      Candidats
+    </button>
+  </div>
+
+  <!-- Job Form Modal -->
+  <div class="modal-overlay" *ngIf="showJobForm" (click)="closeJobForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nouvelle Offre d'Emploi</h2>
+        <button class="btn-close" (click)="closeJobForm()">×</button>
+      </div>
+
+      <form [formGroup]="jobForm" class="form-grid">
+        <div class="form-group col-span-2">
+          <label>Titre du Poste *</label>
+          <input type="text" class="form-control" formControlName="jobTitle" />
+        </div>
+        <div class="form-group">
+          <label>Département *</label>
+          <input type="text" class="form-control" formControlName="department" />
+        </div>
+        <div class="form-group">
+          <label>Salaire (TND) *</label>
+          <input type="number" class="form-control" formControlName="salary" />
+        </div>
+        <div class="form-group col-span-2">
+          <label>Description *</label>
+          <textarea class="form-control" formControlName="description"></textarea>
+        </div>
+        <div class="form-group col-span-2">
+          <label>Compétences requises *</label>
+          <textarea class="form-control" formControlName="requirements"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeJobForm()">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="saveJob()" [disabled]="jobForm.invalid || loading">
+            {{ loading ? 'Création...' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Candidate Detail Modal -->
+  <div class="modal-overlay" *ngIf="showCandidateDetail && selectedCandidate" (click)="closeCandidateDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Détails du Candidat</h2>
+        <button class="btn-close" (click)="closeCandidateDetail()">×</button>
+      </div>
+
+      <div class="candidate-detail">
+        <div class="detail-section">
+          <h3>Informations Personnelles</h3>
+          <div class="detail-item">
+            <span class="label">Nom:</span>
+            <span class="value">{{ selectedCandidate.firstName }} {{ selectedCandidate.lastName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ selectedCandidate.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Téléphone:</span>
+            <span class="value">{{ selectedCandidate.phone }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Poste:</span>
+            <span class="value">{{ getJobTitle(selectedCandidate.jobOpeningId) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Statut:</span>
+            <span [ngClass]="getStatusBadgeClass(selectedCandidate.status)">
+              {{ selectedCandidate.status }}
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <select 
+            class="form-control" 
+            [(ngModel)]="selectedCandidate.status"
+            (change)="updateCandidateStatus(selectedCandidate!.id, selectedCandidate!.status)"
+          >
+            <option *ngFor="let status of candidateStatuses" [value]="status">{{ status }}</option>
+          </select>
+          <button 
+            *ngIf="selectedCandidate.status !== 'hired' && selectedCandidate.status !== 'rejected'"
+            class="btn btn-success"
+            (click)="hireCandidate(selectedCandidate!.id)"
+          >
+            Embaucher
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs Tab -->
+  <div *ngIf="activeTab === 'jobs'" class="jobs-section">
+    <div class="jobs-grid">
+      <div 
+        *ngFor="let job of jobs"
+        class="job-card"
+        (click)="selectJob(job)"
+        [class.active]="selectedJob?.id === job.id"
+      >
+        <div class="job-header">
+          <h3>{{ job.jobTitle || job.title }}</h3>
+          <span [class]="'badge badge-' + job.status">{{ job.status }}</span>
+        </div>
+        <div class="job-info">
+          <p><strong>Département:</strong> {{ job.departmentName }}</p>
+          <p><strong>Salaire:</strong> {{ formatCurrency(job.salaryMin) }} - {{ formatCurrency(job.salaryMax) }}</p>
+          <p><strong>Candidats:</strong> {{ (candidates | count: job.id) }}</p>
+        </div>
+        <div class="job-description">{{ job.requiredQualifications }}</div>
+        <button 
+          *ngIf="job.status === 'open'"
+          class="btn btn-sm btn-danger"
+          (click)="closeJob(job.id); $event.stopPropagation()"
+        >
+          Fermer l'offre
+        </button>
+      </div>
+    </div>
+
+    <!-- Selected Job Candidates -->
+    <div *ngIf="selectedJob" class="job-candidates-section">
+      <h2>Candidats pour: {{ selectedJob.title }}</h2>
+      <div class="table-container">
+        <table class="candidates-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let candidate of selectedJobCandidates">
+              <td>{{ candidate.firstName }} {{ candidate.lastName }}</td>
+              <td>{{ candidate.email }}</td>
+              <td>{{ candidate.phone }}</td>
+              <td>
+                <span [ngClass]="getStatusBadgeClass(candidate.status)">
+                  {{ candidate.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-info" (click)="viewCandidateDetail(candidate)">
+                  Voir
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="selectedJobCandidates.length === 0" class="empty-state">
+          <p>Aucun candidat pour cette offre</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Candidates Tab -->
+  <div *ngIf="activeTab === 'candidates'" class="candidates-section">
+    <div class="filters-section">
+      <input
+        type="text"
+        placeholder="Rechercher par nom, email..."
+        class="form-control"
+        [(ngModel)]="searchText"
+        (change)="applyFilters()"
+      />
+      <select class="form-control" [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="">Tous les statuts</option>
+        <option *ngFor="let status of candidateStatuses" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+
+    <div class="table-container">
+      <table class="candidates-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Poste</th>
+            <th>Statut</th>
+            <th>Candidature</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let candidate of candidates">
+            <td>{{ candidate.firstName }} {{ candidate.lastName }}</td>
+            <td>{{ candidate.email }}</td>
+            <td>{{ getJobTitle(candidate.jobOpeningId) }}</td>
+            <td>
+              <span [ngClass]="getStatusBadgeClass(candidate.status)">
+                {{ candidate.status }}
+              </span>
+            </td>
+            <td>{{ candidate.applicationDate | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <button class="btn btn-sm btn-info" (click)="viewCandidateDetail(candidate)">
+                Voir
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="candidates.length === 0" class="empty-state">
+        <p>Aucun candidat</p>
+      </div>
+    </div>
+  </div>
+</div>

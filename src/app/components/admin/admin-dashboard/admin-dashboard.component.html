@@ -1,0 +1,426 @@
+<div class="admin-container">
+  <!-- Creative header with gradient and stats -->
+  <div class="admin-header">
+    <div class="header-content">
+      <h1>Tableau de Bord Administrateur</h1>
+      <p>Bienvenue, {{ currentUser?.email }}</p>
+    </div>
+    <button (click)="logout()" class="logout-btn">Se déconnecter</button>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button
+      [class.active]="activeTab === 'overview'"
+      (click)="activeTab = 'overview'"
+      class="nav-tab"
+    >
+      Vue d'ensemble
+    </button>
+    <button
+      [class.active]="activeTab === 'employees'"
+      (click)="activeTab = 'employees'"
+      class="nav-tab"
+    >
+      Employés
+    </button>
+    <button
+      [class.active]="activeTab === 'payroll'"
+      (click)="activeTab = 'payroll'"
+      class="nav-tab"
+    >
+      Paie
+    </button>
+    <button
+      [class.active]="activeTab === 'leaves'"
+      (click)="activeTab = 'leaves'"
+      class="nav-tab"
+    >
+      Congés
+    </button>
+    <button
+      [class.active]="activeTab === 'recruitment'"
+      (click)="activeTab = 'recruitment'"
+      class="nav-tab"
+    >
+      Recrutement
+    </button>
+  </div>
+
+  <!-- Content Sections -->
+  <div class="content-area">
+    <!-- Overview Section -->
+    <div *ngIf="activeTab === 'overview'" class="section overview">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon employees"></div>
+          <h3>Employés</h3>
+          <p class="stat-value">{{ employeeCount }}</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon payroll"></div>
+          <h3>Fiches de Paie</h3>
+          <p class="stat-value">{{ payrollCount }}</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon leaves"></div>
+          <h3>Congés en Attente</h3>
+          <p class="stat-value">{{ pendingLeavesCount }}</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon candidates"></div>
+          <h3>Candidatures</h3>
+          <p class="stat-value">{{ candidateCount }}</p>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-container">
+          <h3>Répartition par Département</h3>
+          <div class="placeholder-chart">Chart will be displayed here</div>
+        </div>
+        <div class="chart-container">
+          <h3>État des Congés</h3>
+          <div class="placeholder-chart">Chart will be displayed here</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employees Section -->
+    <div *ngIf="activeTab === 'employees'" class="section employees">
+      <div class="section-header">
+        <h2>Gestion des Employés</h2>
+        <button class="btn-primary" (click)="showAddEmployee = true">
+          + Ajouter un Employé
+        </button>
+      </div>
+
+      <div *ngIf="showAddEmployee" class="form-modal">
+        <div class="modal-overlay" (click)="showAddEmployee = false"></div>
+        <div class="modal-content">
+          <h3>Ajouter un Nouvel Employé</h3>
+          <form [formGroup]="employeeForm" (ngSubmit)="addEmployee()">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Prénom</label>
+                <input type="text" formControlName="firstName" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Nom</label>
+                <input type="text" formControlName="lastName" class="form-control" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" formControlName="email" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" formControlName="phone" class="form-control" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date d'embauche</label>
+                <input type="date" formControlName="hireDate" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Poste</label>
+                <select formControlName="jobId" class="form-control">
+                  <option value="">Sélectionner un poste</option>
+                  <option value="IT_PROG">Programmeur</option>
+                  <option value="IT_MGR">Gestionnaire IT</option>
+                  <option value="HR_SPEC">Spécialiste RH</option>
+                  <option value="FIN_ACC">Comptable</option>
+                  <option value="SAL_REP">Représentant Ventes</option>
+                  <option value="OP_MGR">Gestionnaire Opérations</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Département</label>
+                <select formControlName="departmentId" class="form-control">
+                  <option value="">Sélectionner un département</option>
+                  <option value="1">Ressources Humaines</option>
+                  <option value="2">Informatique</option>
+                  <option value="3">Finances</option>
+                  <option value="4">Ventes</option>
+                  <option value="5">Opérations</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Salaire (TND)</label>
+                <input type="number" formControlName="salary" class="form-control" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Créer Employé</button>
+              <button type="button" class="btn-secondary" (click)="showAddEmployee = false">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Poste</th>
+              <th>Département</th>
+              <th>Salaire (TND)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let emp of employees">
+              <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+              <td>{{ emp.email }}</td>
+              <td>{{ emp.jobTitle }}</td>
+              <td>{{ emp.departmentName }}</td>
+              <td>{{ emp.salary | number:'1.2-2' }}</td>
+              <td>
+                <button class="btn-sm btn-edit" (click)="editEmployee(emp)">Modifier</button>
+                <button class="btn-sm btn-delete" (click)="deleteEmployee(emp.id)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Payroll Section -->
+    <div *ngIf="activeTab === 'payroll'" class="section payroll">
+      <div class="section-header">
+        <h2>Gestion de la Paie</h2>
+        <button class="btn-primary" (click)="showAddPayroll = true">
+          + Créer Fiche de Paie
+        </button>
+      </div>
+
+      <div class="filters">
+        <select [(ngModel)]="selectedMonth" class="form-control">
+          <option value="">Sélectionner mois</option>
+          <option value="1">Janvier</option>
+          <option value="2">Février</option>
+          <option value="3">Mars</option>
+          <option value="4">Avril</option>
+          <option value="5">Mai</option>
+          <option value="6">Juin</option>
+          <option value="7">Juillet</option>
+          <option value="8">Août</option>
+          <option value="9">Septembre</option>
+          <option value="10">Octobre</option>
+          <option value="11">Novembre</option>
+          <option value="12">Décembre</option>
+        </select>
+
+        <select [(ngModel)]="selectedYear" class="form-control">
+          <option value="">Sélectionner année</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Mois/Année</th>
+              <th>Salaire Base (TND)</th>
+              <th>Allocations (TND)</th>
+              <th>Retenues (TND)</th>
+              <th>Impôts (TND)</th>
+              <th>Salaire Net (TND)</th>
+              <th>État</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payroll of payrolls">
+              <td>{{ payroll.firstName }} {{ payroll.lastName }}</td>
+              <td>{{ payroll.month }}/{{ payroll.year }}</td>
+              <td>{{ payroll.baseSalary | number:'1.2-2' }}</td>
+              <td>{{ payroll.allowances | number:'1.2-2' }}</td>
+              <td>{{ payroll.deductions | number:'1.2-2' }}</td>
+              <td>{{ payroll.taxes | number:'1.2-2' }}</td>
+              <td class="salary-net">{{ payroll.netSalary | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class]="'badge-' + payroll.status">
+                  {{ payroll.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-sm btn-edit">Voir</button>
+                <button class="btn-sm btn-delete" *ngIf="payroll.status === 'calculated'" (click)="validatePayroll(payroll.id)">Valider</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Leaves Section -->
+    <div *ngIf="activeTab === 'leaves'" class="section leaves">
+      <div class="section-header">
+        <h2>Gestion des Congés</h2>
+      </div>
+
+      <div class="leaves-filters">
+        <button
+          *ngFor="let status of ['pending', 'approved', 'rejected']"
+          [class.active]="selectedLeaveStatus === status"
+          (click)="selectedLeaveStatus = status"
+          class="filter-btn"
+        >
+          {{ getLeaveStatusLabel(status) }}
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Type</th>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Raison</th>
+              <th>État</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let leave of leaves">
+              <td>{{ leave.firstName }} {{ leave.lastName }}</td>
+              <td>{{ getLeaveTypeLabel(leave.leaveType) }}</td>
+              <td>{{ leave.startDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ leave.endDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ leave.reason || '-' }}</td>
+              <td>
+                <span class="badge" [class]="'badge-' + leave.status">
+                  {{ getLeaveStatusLabel(leave.status) }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-sm btn-success" *ngIf="leave.status === 'pending'" (click)="approveLeave(leave.id)">
+                  Approuver
+                </button>
+                <button class="btn-sm btn-danger" *ngIf="leave.status === 'pending'" (click)="rejectLeave(leave.id)">
+                  Rejeter
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recruitment Section -->
+    <div *ngIf="activeTab === 'recruitment'" class="section recruitment">
+      <div class="section-header">
+        <h2>Recrutement</h2>
+        <button class="btn-primary" (click)="showAddJobOpening = true">
+          + Créer une Offre d'Emploi
+        </button>
+      </div>
+
+      <div class="recruitment-tabs">
+        <button
+          [class.active]="recruitmentTab === 'openings'"
+          (click)="recruitmentTab = 'openings'"
+          class="recruitment-tab"
+        >
+          Offres d'Emploi
+        </button>
+        <button
+          [class.active]="recruitmentTab === 'candidates'"
+          (click)="recruitmentTab = 'candidates'"
+          class="recruitment-tab"
+        >
+          Candidats
+        </button>
+      </div>
+
+      <!-- Job Openings -->
+      <div *ngIf="recruitmentTab === 'openings'" class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Département</th>
+              <th>Postes</th>
+              <th>Salaire Min (TND)</th>
+              <th>Salaire Max (TND)</th>
+              <th>État</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let job of jobOpenings">
+              <td>{{ job.jobTitle }}</td>
+              <td>{{ job.departmentName }}</td>
+              <td>{{ job.positionCount }}</td>
+              <td>{{ job.salaryMin | number:'1.2-2' }}</td>
+              <td>{{ job.salaryMax | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class]="'badge-' + job.status">
+                  {{ job.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-sm btn-edit">Modifier</button>
+                <button class="btn-sm btn-delete">Fermer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Candidates -->
+      <div *ngIf="recruitmentTab === 'candidates'" class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Offre</th>
+              <th>Expérience</th>
+              <th>État</th>
+              <th>Évaluation</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let candidate of candidates">
+              <td>{{ candidate.firstName }} {{ candidate.lastName }}</td>
+              <td>{{ candidate.email }}</td>
+              <td>{{ candidate.jobOpeningId }}</td>
+              <td>{{ candidate.experienceYears }} ans</td>
+              <td>
+                <span class="badge" [class]="'badge-' + candidate.status">
+                  {{ candidate.status }}
+                </span>
+              </td>
+              <td>
+                <span class="rating">★ {{ candidate.rating }}/5</span>
+              </td>
+              <td>
+                <button class="btn-sm btn-edit">Détails</button>
+                <button class="btn-sm btn-delete">Archiver</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

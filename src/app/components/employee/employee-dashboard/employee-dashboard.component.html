@@ -1,0 +1,250 @@
+<div class="employee-container">
+  <div class="emp-header">
+    <div class="header-welcome">
+      <h1>Mon Tableau de Bord</h1>
+      <p>Bienvenue, {{ currentUser?.employee?.firstName }} {{ currentUser?.employee?.lastName }}</p>
+    </div>
+    <button (click)="logout()" class="logout-btn">Se déconnecter</button>
+  </div>
+
+  <div class="emp-nav-tabs">
+    <button
+      [class.active]="activeTab === 'overview'"
+      (click)="activeTab = 'overview'"
+      class="emp-nav-tab"
+    >
+      Aperçu
+    </button>
+    <button
+      [class.active]="activeTab === 'profile'"
+      (click)="activeTab = 'profile'"
+      class="emp-nav-tab"
+    >
+      Mon Profil
+    </button>
+    <button
+      [class.active]="activeTab === 'payroll'"
+      (click)="activeTab = 'payroll'"
+      class="emp-nav-tab"
+    >
+      Mes Fiches de Paie
+    </button>
+    <button
+      [class.active]="activeTab === 'leaves'"
+      (click)="activeTab = 'leaves'"
+      class="emp-nav-tab"
+    >
+      Mes Congés
+    </button>
+  </div>
+
+  <div class="emp-content">
+    <!-- Overview Tab -->
+    <div *ngIf="activeTab === 'overview'" class="emp-section overview-section">
+      <div class="quick-stats">
+        <div class="stat-card">
+          <h3>Salaire Mensuel (TND)</h3>
+          <p class="stat-value">{{ employeeData?.salary | number:'1.2-2' }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Congés Restants</h3>
+          <p class="stat-value">18 jours</p>
+        </div>
+        <div class="stat-card">
+          <h3>Date d'embauche</h3>
+          <p class="stat-value">{{ employeeData?.hireDate | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Ancienneté</h3>
+          <p class="stat-value">{{ getYearsOfService() }} ans</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div *ngIf="activeTab === 'profile'" class="emp-section profile-section">
+      <div class="profile-content">
+        <div class="profile-header">
+          <div class="profile-avatar"></div>
+          <div class="profile-info">
+            <h2>{{ employeeData?.firstName }} {{ employeeData?.lastName }}</h2>
+            <p class="job-title">{{ employeeData?.jobTitle }}</p>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-row">
+            <label>Email</label>
+            <span>{{ employeeData?.email }}</span>
+          </div>
+          <div class="info-row">
+            <label>Téléphone</label>
+            <span>{{ employeeData?.phoneNumber }}</span>
+          </div>
+          <div class="info-row">
+            <label>CIN</label>
+            <span>{{ employeeData?.cin }}</span>
+          </div>
+          <div class="info-row">
+            <label>Date de Naissance</label>
+            <span>{{ employeeData?.birthDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <label>Nationalité</label>
+            <span>{{ employeeData?.nationality }}</span>
+          </div>
+          <div class="info-row">
+            <label>Adresse</label>
+            <span>{{ employeeData?.address }}</span>
+          </div>
+          <div class="info-row">
+            <label>Ville</label>
+            <span>{{ employeeData?.city }}</span>
+          </div>
+          <div class="info-row">
+            <label>Code Postal</label>
+            <span>{{ employeeData?.postalCode }}</span>
+          </div>
+          <div class="info-row">
+            <label>Département</label>
+            <span>{{ employeeData?.departmentName }}</span>
+          </div>
+          <div class="info-row">
+            <label>Type de Contrat</label>
+            <span class="contract-badge">{{ employeeData?.contractType }}</span>
+          </div>
+          <div class="info-row">
+            <label>Date de Début du Contrat</label>
+            <span>{{ employeeData?.contractStart | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row" *ngIf="employeeData?.contractEnd">
+            <label>Date de Fin du Contrat</label>
+            <span>{{ employeeData?.contractEnd | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payroll Tab -->
+    <div *ngIf="activeTab === 'payroll'" class="emp-section payroll-section">
+      <div class="payroll-header">
+        <h2>Mes Fiches de Paie</h2>
+      </div>
+
+      <div class="payroll-list">
+        <div *ngFor="let payroll of myPayrolls" class="payroll-card">
+          <div class="payroll-month">
+            <span class="month">{{ getMonthName(payroll.month) }}</span>
+            <span class="year">{{ payroll.year }}</span>
+          </div>
+
+          <div class="payroll-details">
+            <div class="detail-row">
+              <span>Salaire de Base</span>
+              <span class="value">{{ payroll.baseSalary | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="detail-row">
+              <span>Allocations</span>
+              <span class="value">+ {{ payroll.allowances | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="detail-row">
+              <span>Retenues</span>
+              <span class="value">- {{ payroll.deductions | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="detail-row">
+              <span>Impôts</span>
+              <span class="value">- {{ payroll.taxes | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="detail-row total">
+              <span>Salaire Net</span>
+              <span class="value">{{ payroll.netSalary | number:'1.2-2' }} TND</span>
+            </div>
+          </div>
+
+          <div class="payroll-status">
+            <span class="badge" [class]="'badge-' + payroll.status">
+              {{ getPayrollStatusLabel(payroll.status) }}
+            </span>
+            <button class="btn-download">Télécharger PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaves Tab -->
+    <div *ngIf="activeTab === 'leaves'" class="emp-section leaves-section">
+      <div class="leaves-header">
+        <h2>Gestion de Mes Congés</h2>
+        <button class="btn-primary" (click)="showRequestLeave = true">
+          + Demander un Congé
+        </button>
+      </div>
+
+      <div *ngIf="showRequestLeave" class="leave-form-modal">
+        <div class="modal-overlay" (click)="showRequestLeave = false"></div>
+        <div class="modal-content">
+          <h3>Demander un Congé</h3>
+          <form [formGroup]="leaveForm" (ngSubmit)="requestLeave()">
+            <div class="form-group">
+              <label>Type de Congé</label>
+              <select formControlName="leaveType" class="form-control">
+                <option value="">Sélectionner un type</option>
+                <option value="annual">Congés Annuels</option>
+                <option value="sick">Maladie</option>
+                <option value="maternity">Maternité</option>
+                <option value="special">Spécial</option>
+                <option value="unpaid">Non Payé</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date de Début</label>
+                <input type="date" formControlName="startDate" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Date de Fin</label>
+                <input type="date" formControlName="endDate" class="form-control" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Raison</label>
+              <textarea formControlName="reason" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Soumettre</button>
+              <button type="button" class="btn-secondary" (click)="showRequestLeave = false">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="leaves-list">
+        <div *ngFor="let leave of myLeaves" class="leave-card">
+          <div class="leave-type">
+            <span class="type-badge" [class]="'type-' + leave.leaveType">
+              {{ getLeaveTypeLabel(leave.leaveType) }}
+            </span>
+          </div>
+
+          <div class="leave-dates">
+            <div>{{ leave.startDate | date:'dd/MM/yyyy' }} - {{ leave.endDate | date:'dd/MM/yyyy' }}</div>
+            <small>{{ getDaysDifference(leave.startDate, leave.endDate) }} jours</small>
+          </div>
+
+          <div class="leave-status">
+            <span class="badge" [class]="'badge-' + leave.status">
+              {{ getLeaveStatusLabel(leave.status) }}
+            </span>
+          </div>
+
+          <div *ngIf="leave.reason" class="leave-reason">
+            {{ leave.reason }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

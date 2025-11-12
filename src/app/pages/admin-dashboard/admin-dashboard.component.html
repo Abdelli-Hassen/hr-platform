@@ -1,0 +1,133 @@
+<div class="admin-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">RH</div>
+      <h2>Plateforme RH</h2>
+    </div>
+
+    <nav class="sidebar-menu">
+      <a href="javascript:void(0)" (click)="navigateTo('')" class="menu-item active">
+        <span class="icon">📊</span>
+        <span>Tableau de Bord</span>
+      </a>
+      <a href="javascript:void(0)" (click)="navigateTo('employees')" class="menu-item">
+        <span class="icon">👥</span>
+        <span>Employés</span>
+      </a>
+      <a href="javascript:void(0)" (click)="navigateTo('payroll')" class="menu-item">
+        <span class="icon">💰</span>
+        <span>Paie</span>
+      </a>
+      <a href="javascript:void(0)" (click)="navigateTo('leaves')" class="menu-item">
+        <span class="icon">📅</span>
+        <span>Congés</span>
+      </a>
+      <a href="javascript:void(0)" (click)="navigateTo('recruitment')" class="menu-item">
+        <span class="icon">🎯</span>
+        <span>Recrutement</span>
+      </a>
+    </nav>
+
+    <button class="btn-logout" (click)="logout()">Déconnexion</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <h1>Bienvenue, {{ currentUser?.firstName }}!</h1>
+      <div class="user-info">
+        <span class="user-badge">Admin</span>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content" *ngIf="!loading">
+      <!-- Stats Cards -->
+      <div class="stats-grid" *ngIf="stats">
+        <div class="stat-card stat-total-employees">
+          <div class="stat-icon">👥</div>
+          <div class="stat-details">
+            <p class="stat-label">Total Employés</p>
+            <p class="stat-value">{{ stats.totalEmployees }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-active-employees">
+          <div class="stat-icon">✅</div>
+          <div class="stat-details">
+            <p class="stat-label">Employés Actifs</p>
+            <p class="stat-value">{{ stats.activeEmployees }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-payroll">
+          <div class="stat-icon">💵</div>
+          <div class="stat-details">
+            <p class="stat-label">Masse Salariale</p>
+            <p class="stat-value">{{ formatCurrency(stats.totalPayroll) }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-leaves">
+          <div class="stat-icon">📋</div>
+          <div class="stat-details">
+            <p class="stat-label">Congés En Attente</p>
+            <p class="stat-value">{{ stats.pendingLeaves }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-jobs">
+          <div class="stat-icon">💼</div>
+          <div class="stat-details">
+            <p class="stat-label">Offres Ouvertes</p>
+            <p class="stat-value">{{ stats.openPositions }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-candidates">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-details">
+            <p class="stat-label">Nouveaux Candidats</p>
+            <p class="stat-value">{{ stats.newCandidates }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Employees -->
+      <div class="recent-section">
+        <h2>Derniers Employés Ajoutés</h2>
+        <div class="employees-card-grid">
+          <div *ngFor="let emp of recentEmployees" class="employee-mini-card">
+            <div class="card-header">
+              <div class="employee-avatar">{{ (emp.firstName.charAt(0) + emp.lastName.charAt(0)).toUpperCase() }}</div>
+              <div class="employee-info">
+                <h3>{{ emp.firstName }} {{ emp.lastName }}</h3>
+                <p>{{ emp.jobTitle }}</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="info-item">
+                <span class="label">Email:</span>
+                <span class="value">{{ emp.email }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Département:</span>
+                <span class="value">{{ emp.departmentName }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Salaire:</span>
+                <span class="value">{{ formatCurrency(emp.salary) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      <p>Chargement...</p>
+    </div>
+  </main>
+</div>
