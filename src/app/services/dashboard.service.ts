@@ -7,7 +7,7 @@ import type { DashboardStats } from "../models/dashboard-stats.model"
   providedIn: "root",
 })
 export class DashboardService {
-  private apiUrl = "http://localhost:3000/api/dashboard"
+  private apiUrl = "http://localhost:3001/api/dashboard"
 
   constructor(private http: HttpClient) {}
 

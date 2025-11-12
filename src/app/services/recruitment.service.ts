@@ -7,7 +7,7 @@ import type { JobOpening, Candidate } from "../models/recruitment.model"
   providedIn: "root",
 })
 export class RecruitmentService {
-  private apiUrl = "http://localhost:3000/api/recruitment"
+  private apiUrl = "http://localhost:3001/api/recruitment"
 
   constructor(private http: HttpClient) {}
 

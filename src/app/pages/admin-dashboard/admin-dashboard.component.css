@@ -2,21 +2,13 @@
 
 .admin-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 1fr;
   min-height: 100vh;
   background-color: var(--bg-secondary);
 }
 
 /* Sidebar */
-.sidebar {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: white;
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
+.sidebar { display: none !important; }
 
 .sidebar-logo {
   display: flex;
@@ -45,9 +37,10 @@
 
 .sidebar-menu {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 10px;
   flex: 1;
+  align-items: center;
 }
 
 .menu-item {
@@ -88,6 +81,7 @@
   font-weight: 600;
   transition: all 0.3s ease;
   font-family: inherit;
+  margin-left: auto;
 }
 
 .btn-logout:hover {

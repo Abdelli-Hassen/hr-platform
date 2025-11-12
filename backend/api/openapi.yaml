@@ -1,0 +1,461 @@
+openapi: 3.0.3
+info:
+  title: HR Platform API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Auth OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+  /api/employees:
+    get:
+      tags: [employees]
+      summary: List employees
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Employee' }
+                  total: { type: integer }
+    post:
+      tags: [employees]
+      summary: Create employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '201': { description: Created }
+  /api/employees/{id}:
+    get:
+      tags: [employees]
+      summary: Get employee
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Employee' }
+    put:
+      tags: [employees]
+      summary: Update employee
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Employee' }
+      responses:
+        '200': { description: Updated }
+  /api/employees/{id}/contracts:
+    get:
+      tags: [contracts]
+      summary: List employee contracts
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Contract' }
+    post:
+      tags: [contracts]
+      summary: Create contract
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Contract' }
+      responses:
+        '201': { description: Created }
+  /api/payroll/runs:
+    get:
+      tags: [payroll]
+      summary: List payroll runs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PayrollRun' }
+    post:
+      tags: [payroll]
+      summary: Create payroll run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PayrollRun' }
+      responses:
+        '201': { description: Created }
+  /api/payroll/runs/{id}/calculate:
+    post:
+      tags: [payroll]
+      summary: Calculate payroll for run
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Calculated }
+  /api/payroll/slips/{employeeId}:
+    get:
+      tags: [payroll]
+      summary: Get salary slips for employee (by run)
+      parameters:
+        - in: path
+          name: employeeId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PayrollItem' }
+  /api/leaves:
+    get:
+      tags: [leaves]
+      summary: List leaves
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Leave' }
+    post:
+      tags: [leaves]
+      summary: Create leave request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Leave' }
+      responses:
+        '201': { description: Created }
+  /api/leaves/{id}/approve:
+    put:
+      tags: [leaves]
+      summary: Approve leave
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Approved }
+  /api/leaves/{id}/reject:
+    put:
+      tags: [leaves]
+      summary: Reject leave
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: false
+      responses:
+        '200': { description: Rejected }
+  /api/absences:
+    get:
+      tags: [absences]
+      summary: List absences
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Absence' }
+    post:
+      tags: [absences]
+      summary: Create absence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Absence' }
+      responses:
+        '201': { description: Created }
+  /api/recruitment/openings:
+    get:
+      tags: [recruitment]
+      summary: List openings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/JobOpening' }
+    post:
+      tags: [recruitment]
+      summary: Create opening
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobOpening' }
+      responses:
+        '201': { description: Created }
+  /api/recruitment/candidates:
+    get:
+      tags: [recruitment]
+      summary: List candidates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Candidate' }
+    post:
+      tags: [recruitment]
+      summary: Create candidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Candidate' }
+      responses:
+        '201': { description: Created }
+  /api/dashboards/kpis:
+    get:
+      tags: [dashboards]
+      summary: Get KPIs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalEmployees: { type: integer }
+                  openPositions: { type: integer }
+                  pendingLeaves: { type: integer }
+                  payrollStatus: { type: string }
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string }
+        user:
+          allOf:
+            - $ref: '#/components/schemas/User'
+            - type: object
+              properties:
+                employee:
+                  oneOf:
+                    - $ref: '#/components/schemas/Employee'
+                    - type: 'null'
+    User:
+      type: object
+      required: [user_id, email, role, is_active]
+      properties:
+        user_id: { type: integer }
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, employee, manager] }
+        is_active: { type: boolean }
+    Employee:
+      type: object
+      required: [employee_id, first_name, last_name, email, hire_date, job_id, base_salary, currency]
+      properties:
+        employee_id: { type: integer }
+        user_id: { type: integer, nullable: true }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        hire_date: { type: string, format: date }
+        job_id: { type: string }
+        department_id: { type: integer }
+        cin: { type: string }
+        birth_date: { type: string, format: date }
+        nationality: { type: string }
+        address: { type: string }
+        city: { type: string }
+        postal_code: { type: string }
+        contract_type: { type: string, enum: [CDI, CDD, Stage] }
+        contract_start: { type: string, format: date }
+        contract_end: { type: string, format: date }
+        base_salary: { type: number }
+        currency: { type: string, enum: [TND] }
+    Contract:
+      type: object
+      required: [contract_id, employee_id, type, start_date, salary, currency, status]
+      properties:
+        contract_id: { type: integer }
+        employee_id: { type: integer }
+        type: { type: string, enum: [CDI, CDD, Stage] }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        salary: { type: number }
+        currency: { type: string, enum: [TND] }
+        status: { type: string, enum: [active, ended] }
+    PayrollRun:
+      type: object
+      required: [run_id, month, year, status]
+      properties:
+        run_id: { type: integer }
+        month: { type: integer, minimum: 1, maximum: 12 }
+        year: { type: integer }
+        status: { type: string, enum: [pending, calculated, validated, paid] }
+    PayrollItem:
+      type: object
+      required: [item_id, run_id, employee_id, base_salary, allowances, deductions, taxes, net_salary]
+      properties:
+        item_id: { type: integer }
+        run_id: { type: integer }
+        employee_id: { type: integer }
+        base_salary: { type: number }
+        allowances: { type: number }
+        deductions: { type: number }
+        taxes: { type: number }
+        net_salary: { type: number }
+        notes: { type: string }
+    LeaveBalance:
+      type: object
+      required: [balance_id, employee_id, annual_entitlement, carried_over, year]
+      properties:
+        balance_id: { type: integer }
+        employee_id: { type: integer }
+        annual_entitlement: { type: number }
+        carried_over: { type: number }
+        year: { type: integer }
+    Leave:
+      type: object
+      required: [leave_id, employee_id, leave_type, start_date, end_date, status]
+      properties:
+        leave_id: { type: integer }
+        employee_id: { type: integer }
+        leave_type: { type: string, enum: [annual, sick, unpaid, maternity, special] }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        reason: { type: string }
+        status: { type: string, enum: [pending, approved, rejected, cancelled] }
+        approval_by: { type: integer }
+        approval_date: { type: string, format: date-time }
+        rejection_reason: { type: string }
+    Absence:
+      type: object
+      required: [absence_id, employee_id, absence_date]
+      properties:
+        absence_id: { type: integer }
+        employee_id: { type: integer }
+        absence_date: { type: string, format: date }
+        duration_hours: { type: number }
+        reason: { type: string }
+        status: { type: string, enum: [present, absent, late, justified_absence] }
+        justification_document: { type: string }
+    JobOpening:
+      type: object
+      required: [job_opening_id, job_title, department_id, position_count, created_date, status]
+      properties:
+        job_opening_id: { type: integer }
+        job_title: { type: string }
+        department_id: { type: integer }
+        position_count: { type: integer }
+        required_experience: { type: integer }
+        required_qualifications: { type: string }
+        salary_min: { type: number }
+        salary_max: { type: number }
+        currency: { type: string, enum: [TND] }
+        status: { type: string, enum: [open, closed, on_hold] }
+        created_date: { type: string, format: date }
+        closing_date: { type: string, format: date }
+        created_by: { type: integer }
+    Candidate:
+      type: object
+      required: [candidate_id, job_opening_id, first_name, last_name, email, application_date, status]
+      properties:
+        candidate_id: { type: integer }
+        job_opening_id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        cv_path: { type: string }
+        cover_letter: { type: string }
+        experience_years: { type: integer }
+        current_position: { type: string }
+        current_company: { type: string }
+        application_date: { type: string, format: date }
+        status: { type: string, enum: [submitted, reviewed, interview, offered, rejected, hired] }
+        interview_date: { type: string, format: date-time }
+        feedback: { type: string }
+        rating: { type: integer }

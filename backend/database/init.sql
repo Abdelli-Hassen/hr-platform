@@ -229,9 +229,9 @@ INSERT INTO jobs (job_id, job_title, min_salary, max_salary) VALUES
 ('SAL_REP', 'Représentant Ventes', 1800, 3000),
 ('OP_MGR', 'Gestionnaire Opérations', 2500, 4000);
 
--- Insert admin user (password: admin123)
+-- Insert admin user (password: admin123 - stored as plain text)
 INSERT INTO users (email, password_hash, role, is_active) VALUES 
-('admin@hrplatform.tn', '$2b$10$KqE7ZAiSx7CsYYlO/LfiZeFVBBX3VG//Nr6xAchZMdgqXWUkuzyYO', 'admin', TRUE);
+('admin@hrplatform.tn', 'admin123', 'admin', TRUE);
 
 -- Insert sample employees
 INSERT INTO employees (first_name, last_name, email, phone_number, hire_date, job_id, salary, department_id, user_id, cin, birth_date, nationality, contract_type, contract_start) VALUES 

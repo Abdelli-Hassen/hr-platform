@@ -6,8 +6,10 @@ import employeeRoutes from "./routes/employees"
 import payrollRoutes from "./routes/payroll"
 import leaveRoutes from "./routes/leaves"
 import recruitmentRoutes from "./routes/recruitment"
+import dashboardRoutes from "./routes/dashboard"
 
 dotenv.config()
+console.log("Using DB", process.env.DB_NAME || "human_ressources")
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -21,6 +23,7 @@ app.use("/api/employees", employeeRoutes)
 app.use("/api/payroll", payrollRoutes)
 app.use("/api/leaves", leaveRoutes)
 app.use("/api/recruitment", recruitmentRoutes)
+app.use("/api/dashboard", dashboardRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

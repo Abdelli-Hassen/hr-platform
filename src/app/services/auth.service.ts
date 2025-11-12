@@ -7,7 +7,7 @@ import type { AuthResponse, User, LoginRequest } from "../models/auth.model"
   providedIn: "root",
 })
 export class AuthService {
-  private apiUrl = "http://localhost:3000/api/auth"
+  private apiUrl = "http://localhost:3001/api/auth"
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage())
   public currentUser$ = this.currentUserSubject.asObservable()
 

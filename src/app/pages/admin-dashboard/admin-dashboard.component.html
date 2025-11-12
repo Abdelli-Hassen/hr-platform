@@ -1,36 +1,6 @@
 <div class="admin-layout">
-  <!-- Sidebar Navigation -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">RH</div>
-      <h2>Plateforme RH</h2>
-    </div>
-
-    <nav class="sidebar-menu">
-      <a href="javascript:void(0)" (click)="navigateTo('')" class="menu-item active">
-        <span class="icon">📊</span>
-        <span>Tableau de Bord</span>
-      </a>
-      <a href="javascript:void(0)" (click)="navigateTo('employees')" class="menu-item">
-        <span class="icon">👥</span>
-        <span>Employés</span>
-      </a>
-      <a href="javascript:void(0)" (click)="navigateTo('payroll')" class="menu-item">
-        <span class="icon">💰</span>
-        <span>Paie</span>
-      </a>
-      <a href="javascript:void(0)" (click)="navigateTo('leaves')" class="menu-item">
-        <span class="icon">📅</span>
-        <span>Congés</span>
-      </a>
-      <a href="javascript:void(0)" (click)="navigateTo('recruitment')" class="menu-item">
-        <span class="icon">🎯</span>
-        <span>Recrutement</span>
-      </a>
-    </nav>
-
-    <button class="btn-logout" (click)="logout()">Déconnexion</button>
-  </aside>
+  <!-- Sidebar hidden, using global navbar -->
+  <aside class="sidebar" aria-hidden="true"></aside>
 
   <!-- Main Content -->
   <main class="main-content">
