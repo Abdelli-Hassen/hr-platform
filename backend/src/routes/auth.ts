@@ -9,7 +9,13 @@ router.post("/login", async (req: Request, res: Response) => {
     const { email, password } = req.body
     const defaultEmail = process.env.DEFAULT_ADMIN_EMAIL || "admin@hrplatform.tn"
     const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || "admin123"
-    if (email === defaultEmail && password === defaultPassword) {
+
+    const emailInput = String(email || "").trim().toLowerCase()
+    const passwordInput = String(password || "").trim()
+    const defaultEmailNorm = String(defaultEmail).trim().toLowerCase()
+    const defaultPasswordNorm = String(defaultPassword).trim()
+
+    if (emailInput === defaultEmailNorm && passwordInput === defaultPasswordNorm) {
       const token = jwt.sign(
         { user_id: 1, email: defaultEmail, role: "admin" },
         process.env.JWT_SECRET || "your-secret-key",
@@ -26,7 +32,28 @@ router.post("/login", async (req: Request, res: Response) => {
       })
     }
 
-    const [rows]: any = await query("SELECT * FROM users WHERE email = ?", [email])
+    // Default demo employee fallback(s)
+    const demoEmpEmail = (process.env.DEFAULT_EMP_EMAIL || "employee@hrplatform.tn").trim().toLowerCase()
+    const demoEmpEmail2 = (process.env.DEFAULT_EMP_EMAIL2 || "m.benali@hrplatform.tn").trim().toLowerCase()
+    const demoEmpPass = (process.env.DEFAULT_EMP_PASSWORD || "emp123").trim()
+    if ((emailInput === demoEmpEmail || emailInput === demoEmpEmail2) && passwordInput === demoEmpPass) {
+      const token = jwt.sign(
+        { user_id: 2, email: emailInput, role: "employee" },
+        process.env.JWT_SECRET || "your-secret-key",
+        { expiresIn: "24h" },
+      )
+      return res.json({
+        token,
+        user: {
+          id: 2,
+          email: emailInput,
+          role: "employee",
+          employee: null,
+        },
+      })
+    }
+
+    const [rows]: any = await query("SELECT * FROM users WHERE email = ?", [emailInput])
 
     if (!rows.length) {
       console.log('LOGIN NOT FOUND',{ email })
@@ -44,7 +71,7 @@ router.post("/login", async (req: Request, res: Response) => {
       dbHex: Buffer.from(String(user.password_hash), 'utf8').toString('hex')
     })
     // Plain text password comparison (exact)
-    if (user.password_hash !== password) {
+    if (String(user.password_hash || "") !== passwordInput) {
       return res.status(401).json({ error: "Email ou mot de passe incorrect" })
     }
 

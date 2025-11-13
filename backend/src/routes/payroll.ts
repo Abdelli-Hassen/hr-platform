@@ -8,7 +8,22 @@ const router = Router()
 router.get("/", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { employeeId, month, year } = req.query
-    let sql = `SELECT p.*, e.first_name, e.last_name FROM payroll p
+    let sql = `SELECT 
+                 p.payroll_id AS id,
+                 p.payroll_id AS payrollId,
+                 p.employee_id AS employeeId,
+                 e.first_name AS firstName,
+                 e.last_name  AS lastName,
+                 p.month      AS month,
+                 p.year       AS year,
+                 p.base_salary AS baseSalary,
+                 p.allowances AS allowances,
+                 p.deductions AS deductions,
+                 p.taxes      AS taxes,
+                 p.net_salary AS netSalary,
+                 p.status     AS status,
+                 p.payment_date AS paymentDate
+               FROM payroll p
                LEFT JOIN employees e ON p.employee_id = e.employee_id WHERE 1=1`
     const params: any[] = []
 

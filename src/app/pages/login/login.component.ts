@@ -41,7 +41,9 @@ export class LoginComponent {
     }
 
     this.loading = true
-    this.authService.login({ email: this.f["email"].value, password: this.f["password"].value }).subscribe({
+    const email = String(this.f["email"].value || "").trim()
+    const password = String(this.f["password"].value || "").trim()
+    this.authService.login({ email, password }).subscribe({
       next: (response) => {
         const user = response.user
         if (user.role === "admin") {
@@ -50,8 +52,8 @@ export class LoginComponent {
           this.router.navigate(["/employee"])
         }
       },
-      error: (error) => {
-        this.error = "Email ou mot de passe incorrect"
+      error: (err) => {
+        this.error = err?.error?.error || "Erreur de connexion"
         this.loading = false
       },
     })

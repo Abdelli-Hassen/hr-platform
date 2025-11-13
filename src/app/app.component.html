@@ -12,7 +12,7 @@
   .btn-logout:hover{background:rgba(255,255,255,0.2)}
   .app-content{padding:16px}
 </style>
-<nav class="app-nav">
+<nav class="app-nav" *ngIf="!router.url.includes('/login')">
   <div class="brand">
     <div class="logo">RH</div>
     <div class="title">Platforme RH</div>
@@ -29,6 +29,6 @@
     <button class="btn-logout" (click)="onLogout()">Déconnexion</button>
   </div>
 </nav>
-<div class="app-content">
+<div class="app-content" [style.padding.px]="router.url.includes('/login') ? 0 : 16">
   <router-outlet></router-outlet>
 </div>

@@ -5,7 +5,7 @@ This document is a turnkey blueprint to implement a complete Angular + Express H
 
 ## 1. Tech Stack
 - Frontend: Angular 18+, Standalone Components, Angular Router, RxJS, Signals (optional), SCSS.
-- Backend: Node.js (Express), mysql2/promise, jsonwebtoken, cors, dotenv. Keep plain-text passwords to match current project (switch to bcrypt in production).
+- Backend: Node.js (Express), mysql2/promise, dotenv. Keep plain-text passwords to match current project.
 - DB: MySQL 8, schema human_ressources.
 - Tooling: TypeScript, ts-node, OpenAPI (YAML) for API contract.
 

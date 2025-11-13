@@ -7,7 +7,7 @@ import type { Payroll } from "../models/payroll.model"
   providedIn: "root",
 })
 export class PayrollService {
-  private apiUrl = "http://localhost:3001/api/payroll"
+  private apiUrl = "http://localhost:3000/api/payroll"
 
   constructor(private http: HttpClient) {}
 
