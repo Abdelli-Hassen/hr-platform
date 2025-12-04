@@ -1,0 +1,235 @@
+<div class="leave-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Gestion des Congés et Absences</h1>
+      <p>Gérez les demandes de congés et les absences</p>
+    </div>
+    <div class="header-buttons">
+      <button 
+        class="btn btn-primary" 
+        (click)="openLeaveForm()"
+        *ngIf="!showLeaveForm && activeTab === 'leaves'"
+      >
+        + Demander Congé
+      </button>
+      <button 
+        class="btn btn-primary" 
+        (click)="openAbsenceForm()"
+        *ngIf="!showAbsenceForm && activeTab === 'absences' && currentUser?.role === 'admin'"
+      >
+        + Enregistrer Absence
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'leaves'"
+      (click)="switchTab('leaves')"
+      class="tab-btn"
+    >
+      Congés
+    </button>
+    <button 
+      [class.active]="activeTab === 'absences'"
+      (click)="switchTab('absences')"
+      class="tab-btn"
+    >
+      Absences
+    </button>
+  </div>
+
+  <!-- Leave Modal -->
+  <div class="modal-overlay" *ngIf="showLeaveForm && activeTab === 'leaves'" (click)="closeLeaveForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Demande de Congé</h2>
+        <button class="btn-close" (click)="closeLeaveForm()">×</button>
+      </div>
+
+      <form [formGroup]="leaveForm" class="form-grid">
+        <div class="form-group" *ngIf="currentUser?.role === 'admin'">
+          <label>Employé *</label>
+          <select class="form-control" formControlName="employeeId">
+            <option value="">Sélectionner...</option>
+            <option *ngFor="let emp of employees" [value]="emp.id">
+              {{ emp.firstName }} {{ emp.lastName }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date de début *</label>
+          <input type="date" class="form-control" formControlName="startDate" />
+        </div>
+        <div class="form-group">
+          <label>Date de fin *</label>
+          <input type="date" class="form-control" formControlName="endDate" />
+        </div>
+        <div class="form-group">
+          <label>Type de congé *</label>
+          <select class="form-control" formControlName="leaveType">
+            <option *ngFor="let type of leaveTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="form-group col-span-2">
+          <label>Raison *</label>
+          <textarea class="form-control" formControlName="reason"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeLeaveForm()">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="saveLeave()" [disabled]="leaveForm.invalid || loading">
+            {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Absence Modal -->
+  <div class="modal-overlay" *ngIf="showAbsenceForm && activeTab === 'absences'" (click)="closeAbsenceForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Enregistrer Absence</h2>
+        <button class="btn-close" (click)="closeAbsenceForm()">×</button>
+      </div>
+
+      <form [formGroup]="absenceForm" class="form-grid">
+        <div class="form-group">
+          <label>Employé *</label>
+          <select class="form-control" formControlName="employeeId">
+            <option value="">Sélectionner...</option>
+            <option *ngFor="let emp of employees" [value]="emp.id">
+              {{ emp.firstName }} {{ emp.lastName }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" class="form-control" formControlName="date" />
+        </div>
+        <div class="form-group">
+          <label>Type *</label>
+          <select class="form-control" formControlName="type">
+            <option *ngFor="let type of absenceTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="form-group col-span-2">
+          <label>Raison</label>
+          <textarea class="form-control" formControlName="reason"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeAbsenceForm()">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="saveAbsence()" [disabled]="absenceForm.invalid || loading">
+            {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Leaves Content -->
+  <div *ngIf="activeTab === 'leaves'">
+    <div class="filters-section">
+      <input
+        type="text"
+        placeholder="Rechercher par employé..."
+        class="form-control"
+        [(ngModel)]="searchText"
+        (change)="onFilterChange()"
+      />
+      <select class="form-control" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+        <option value="">Tous les statuts</option>
+        <option *ngFor="let status of leaveStatuses" [value]="status">{{ status }}</option>
+      </select>
+      <select class="form-control" [(ngModel)]="filterType" (change)="onFilterChange()">
+        <option value="">Tous les types</option>
+        <option *ngFor="let type of leaveTypes" [value]="type">{{ type }}</option>
+      </select>
+    </div>
+
+    <div class="table-container">
+      <table class="leaves-table">
+        <thead>
+          <tr>
+            <th>Employé</th>
+            <th>Type</th>
+            <th>Période</th>
+            <th>Jours</th>
+            <th>Raison</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let leave of filteredLeaves" class="table-row">
+            <td>{{ getEmployeeName(leave.employeeId) }}</td>
+            <td>{{ leave.leaveType }}</td>
+            <td>{{ leave.startDate | date: 'dd/MM/yyyy' }} - {{ leave.endDate | date: 'dd/MM/yyyy' }}</td>
+            <td><strong>{{ calculateDays(leave.startDate, leave.endDate) }} j</strong></td>
+            <td>{{ leave.reason }}</td>
+            <td>
+              <span [ngClass]="getStatusBadgeClass(leave.status)">
+                {{ leave.status }}
+              </span>
+            </td>
+            <td *ngIf="currentUser?.role === 'admin'">
+              <div class="action-buttons">
+                <button 
+                  *ngIf="leave.status === 'pending'"
+                  class="btn btn-sm btn-success"
+                  (click)="approveLeave(leave.id)"
+                >
+                  Approuver
+                </button>
+                <button 
+                  *ngIf="leave.status === 'pending'"
+                  class="btn btn-sm btn-danger"
+                  (click)="rejectLeave(leave.id)"
+                >
+                  Rejeter
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="filteredLeaves.length === 0" class="empty-state">
+        <p>Aucun congé enregistré</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Absences Content -->
+  <div *ngIf="activeTab === 'absences'">
+    <div class="table-container">
+      <table class="absences-table">
+        <thead>
+          <tr>
+            <th>Employé</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Raison</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let absence of absences">
+            <td>{{ getEmployeeName(absence.employeeId) }}</td>
+            <td>{{ absence.date | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <span [ngClass]="'badge badge-' + absence.type">
+                {{ absence.type }}
+              </span>
+            </td>
+            <td>{{ absence.reason || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="absences.length === 0" class="empty-state">
+        <p>Aucune absence enregistrée</p>
+      </div>
+    </div>
+  </div>
+</div>
