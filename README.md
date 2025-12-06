@@ -75,7 +75,7 @@ A modern, full-stack Human Resources Management System built with Angular and No
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/platform_rh.git
+git clone https://github.com/Abdelli-Hassen/platform_rh.git
 cd platform_rh
 ```
 
