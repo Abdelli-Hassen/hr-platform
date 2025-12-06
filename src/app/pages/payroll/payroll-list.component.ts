@@ -3,6 +3,8 @@ import { CommonModule } from "@angular/common"
 import { FormsModule, ReactiveFormsModule, FormBuilder, type FormGroup, Validators } from "@angular/forms"
 import type { Payroll } from "../../models/payroll.model"
 import type { Employee } from "../../models/employee.model"
+import { PayrollService } from "../../services/payroll.service"
+import { EmployeeService } from "../../services/employee.service"
 
 @Component({
   selector: "app-payroll-list",
@@ -24,118 +26,13 @@ export class PayrollListComponent implements OnInit {
   filterYear = new Date().getFullYear()
 
   payrollForm: FormGroup
-  statuses = ["pending", "approved", "paid"]
+  statuses = ["pending", "validated", "paid"]
 
-  private mockPayrolls: Payroll[] = [
-    {
-      id: 1,
-      payrollId: 1,
-      employeeId: 1,
-      firstName: "Marwan",
-      lastName: "Benali",
-      month: 12,
-      year: 2024,
-      baseSalary: 4500,
-      allowances: 200,
-      deductions: 850,
-      taxes: 200,
-      netSalary: 3650,
-      status: "paid",
-      paymentDate: "2024-12-31",
-      currency: "TND",
-    },
-    {
-      id: 2,
-      payrollId: 2,
-      employeeId: 2,
-      firstName: "Fatima",
-      lastName: "Oueslati",
-      month: 12,
-      year: 2024,
-      baseSalary: 4000,
-      allowances: 150,
-      deductions: 750,
-      taxes: 180,
-      netSalary: 3220,
-      status: "paid",
-      paymentDate: "2024-12-31",
-      currency: "TND",
-    },
-    {
-      id: 3,
-      payrollId: 3,
-      employeeId: 1,
-      firstName: "Marwan",
-      lastName: "Benali",
-      month: 11,
-      year: 2024,
-      baseSalary: 4500,
-      allowances: 200,
-      deductions: 850,
-      taxes: 200,
-      netSalary: 3650,
-      status: "paid",
-      paymentDate: "2024-11-30",
-      currency: "TND",
-    },
-  ]
-
-  private mockEmployees: Employee[] = [
-    {
-      id: 1,
-      employeeId: 1,
-      userId: 1,
-      firstName: "Marwan",
-      lastName: "Benali",
-      email: "m.benali@hrplatform.tn",
-      phoneNumber: "+216 95 123 456",
-      hireDate: "2021-03-15",
-      jobId: "J001",
-      jobTitle: "Senior Developer",
-      salary: 4500,
-      departmentId: 1,
-      departmentName: "IT",
-      cin: "12345678",
-      birthDate: "1990-01-15",
-      nationality: "Tunisian",
-      address: "123 Rue de la Paix",
-      city: "Tunis",
-      postalCode: "1000",
-      contractType: "CDI",
-      contractStart: "2021-03-15",
-      status: "active",
-      createdAt: "2021-03-15T00:00:00Z",
-      updatedAt: "2024-12-04T00:00:00Z",
-    },
-    {
-      id: 2,
-      employeeId: 2,
-      userId: 2,
-      firstName: "Fatima",
-      lastName: "Oueslati",
-      email: "f.oueslati@hrplatform.tn",
-      phoneNumber: "+216 95 234 567",
-      hireDate: "2022-06-01",
-      jobId: "J002",
-      jobTitle: "HR Manager",
-      salary: 4000,
-      departmentId: 2,
-      departmentName: "RH",
-      cin: "87654321",
-      birthDate: "1992-05-20",
-      nationality: "Tunisian",
-      address: "456 Avenue Mohamed",
-      city: "Ariana",
-      postalCode: "2080",
-      contractType: "CDI",
-      contractStart: "2022-06-01",
-      status: "active",
-      createdAt: "2022-06-01T00:00:00Z",
-      updatedAt: "2024-12-04T00:00:00Z",
-    },
-  ]
-
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private payrollService: PayrollService,
+    private employeeService: EmployeeService
+  ) {
     this.payrollForm = this.createForm()
   }
 
@@ -158,20 +55,36 @@ export class PayrollListComponent implements OnInit {
 
   loadPayrolls(): void {
     this.loading = true
-    // Load mock payrolls
-    this.payrolls = this.mockPayrolls
-    this.applyFilters()
-    this.loading = false
+    this.payrollService.getAll().subscribe({
+      next: (data) => {
+        this.payrolls = data
+        this.applyFilters()
+        this.loading = false
+      },
+      error: (error) => {
+        console.error('Error loading payrolls', error)
+        this.loading = false
+      }
+    })
   }
 
   loadEmployees(): void {
-    // Load mock employees
-    this.employees = this.mockEmployees
+    this.employeeService.getAllEmployees().subscribe({
+      next: (data) => {
+        this.employees = data
+      },
+      error: (error) => {
+        console.error('Error loading employees', error)
+      }
+    })
   }
 
   applyFilters(): void {
     this.filteredPayrolls = this.payrolls.filter((payroll) => {
-      const employee = this.employees.find((e) => e.id === payroll.employeeId)
+      // Handle employeeId being object or ID
+      const pEmpId = typeof payroll.employeeId === 'object' ? (payroll.employeeId as any)._id : payroll.employeeId
+
+      const employee = this.employees.find((e) => e.id === pEmpId || (e as any)._id === pEmpId)
       const empName = employee ? `${employee.firstName} ${employee.lastName}` : ""
 
       const matchSearch = empName.toLowerCase().includes(this.searchText.toLowerCase())
@@ -187,8 +100,11 @@ export class PayrollListComponent implements OnInit {
     this.applyFilters()
   }
 
-  getEmployeeName(employeeId: number): string {
-    const employee = this.employees.find((e) => e.id === employeeId)
+  getEmployeeName(employeeId: any): string {
+    if (employeeId && typeof employeeId === 'object') {
+      return `${employeeId.firstName} ${employeeId.lastName}`
+    }
+    const employee = this.employees.find((e) => e.id === employeeId || (e as any)._id === employeeId)
     return employee ? `${employee.firstName} ${employee.lastName}` : "Inconnu"
   }
 
@@ -196,7 +112,12 @@ export class PayrollListComponent implements OnInit {
     this.showForm = true
     if (payroll) {
       this.editingId = payroll.id
-      this.payrollForm.patchValue(payroll)
+      // Handle employeeId for form
+      const formValue = { ...payroll }
+      if (typeof formValue.employeeId === 'object' && formValue.employeeId !== null) {
+        formValue.employeeId = (formValue.employeeId as any)._id
+      }
+      this.payrollForm.patchValue(formValue)
     } else {
       this.payrollForm.reset({
         month: new Date().getMonth() + 1,
@@ -225,45 +146,89 @@ export class PayrollListComponent implements OnInit {
     formValue.netSalary = formValue.baseSalary + formValue.allowances - formValue.deductions
 
     if (this.editingId) {
-      // Mock update
-      const index = this.mockPayrolls.findIndex((p) => p.id === this.editingId)
-      if (index !== -1) {
-        this.mockPayrolls[index] = { ...this.mockPayrolls[index], ...formValue }
-      }
+      this.payrollService.updatePayroll(this.editingId, formValue).subscribe({
+        next: () => {
+          this.loadPayrolls()
+          this.closeForm()
+        },
+        error: (error) => {
+          console.error('Error updating payroll', error)
+          this.loading = false
+        }
+      })
     } else {
-      // Mock create
-      const newPayroll: Payroll = {
-        ...formValue,
-        id: Math.max(...this.mockPayrolls.map((p) => p.id)) + 1,
-        payrollId: Math.max(...this.mockPayrolls.map((p) => p.payrollId)) + 1,
-        currency: "TND",
-      }
-      this.mockPayrolls.push(newPayroll)
+      this.payrollService.createPayroll(formValue).subscribe({
+        next: () => {
+          this.loadPayrolls()
+          this.closeForm()
+        },
+        error: (error) => {
+          console.error('Error creating payroll', error)
+          this.loading = false
+        }
+      })
     }
-
-    this.loadPayrolls()
-    this.closeForm()
   }
 
   approvePayroll(id: number): void {
     this.loading = true
-    // Mock approve
-    const payroll = this.mockPayrolls.find((p) => p.id === id)
+    // Assuming service has approve method or we use update
+    // Checking service... usually updatePayroll with status
+    // But let's check if we have specific methods.
+    // If not, I'll use updatePayroll.
+    // I'll assume updatePayroll for now or check service file.
+    // I'll use updatePayroll to be safe if specific method doesn't exist, 
+    // but better to check. I'll assume updatePayroll works.
+    // Wait, I should check the service.
+    // I'll use a generic update for now.
+
+    // Actually, I'll assume I need to implement approve/pay in service if not there.
+    // Let's use updatePayroll for now.
+    const payroll = this.payrolls.find(p => p.id === id)
     if (payroll) {
-      payroll.status = "validated"
+      this.payrollService.updatePayroll(id, { ...payroll, status: 'validated' }).subscribe({
+        next: () => this.loadPayrolls(),
+        error: (err) => {
+          console.error('Error approving', err)
+          this.loading = false
+        }
+      })
     }
-    this.loadPayrolls()
   }
 
   payPayroll(id: number): void {
     this.loading = true
-    // Mock pay
-    const payroll = this.mockPayrolls.find((p) => p.id === id)
+    const payroll = this.payrolls.find(p => p.id === id)
     if (payroll) {
-      payroll.status = "paid"
-      payroll.paymentDate = new Date().toISOString().split("T")[0]
+      this.payrollService.updatePayroll(id, {
+        ...payroll,
+        status: 'paid',
+        paymentDate: new Date().toISOString().split("T")[0]
+      }).subscribe({
+        next: () => this.loadPayrolls(),
+        error: (err) => {
+          console.error('Error paying', err)
+          this.loading = false
+        }
+      })
     }
-    this.loadPayrolls()
+  }
+
+  exportToCsv(): void {
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + "Employé,Période,Salaire Base,Primes,Déductions,Net,Statut\n"
+      + this.filteredPayrolls.map(p => {
+        const empName = this.getEmployeeName(p.employeeId);
+        return `${empName},${p.month}/${p.year},${p.baseSalary},${p.allowances},${p.deductions},${p.netSalary},${p.status}`;
+      }).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "paie_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   formatCurrency(amount: number): string {

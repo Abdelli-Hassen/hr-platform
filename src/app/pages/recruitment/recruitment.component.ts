@@ -2,7 +2,10 @@ import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule, ReactiveFormsModule, FormBuilder, type FormGroup, Validators } from "@angular/forms"
 import type { JobOpening, Candidate } from "../../models/recruitment.model"
+import type { Department } from "../../models/department.model"
 import { CountPipe } from "../../pipes/count.pipe"
+import { RecruitmentService } from "../../services/recruitment.service"
+import { DepartmentService } from "../../services/department.service"
 
 @Component({
   selector: "app-recruitment",
@@ -14,6 +17,7 @@ import { CountPipe } from "../../pipes/count.pipe"
 export class RecruitmentComponent implements OnInit {
   jobs: JobOpening[] = []
   candidates: Candidate[] = []
+  departments: Department[] = []
   selectedJob: JobOpening | null = null
   selectedJobCandidates: Candidate[] = []
 
@@ -28,73 +32,11 @@ export class RecruitmentComponent implements OnInit {
   jobForm: FormGroup
   candidateStatuses = ["submitted", "reviewed", "interview", "offered", "hired", "rejected"]
 
-  private mockJobs: JobOpening[] = [
-    {
-      id: 1,
-      jobOpeningId: 1,
-      jobTitle: "Senior Angular Developer",
-      departmentId: 1,
-      departmentName: "IT",
-      positionCount: 2,
-      requiredExperience: 5,
-      requiredQualifications: "5+ years Angular experience",
-      salaryMin: 4000,
-      salaryMax: 6000,
-      currency: "TND",
-      status: "open",
-      createdDate: "2024-11-01",
-    },
-    {
-      id: 2,
-      jobOpeningId: 2,
-      jobTitle: "Product Manager",
-      departmentId: 3,
-      departmentName: "Product",
-      positionCount: 1,
-      requiredExperience: 3,
-      requiredQualifications: "3+ years PM experience",
-      salaryMin: 5000,
-      salaryMax: 7000,
-      currency: "TND",
-      status: "open",
-      createdDate: "2024-11-15",
-    },
-  ]
-
-  private mockCandidates: Candidate[] = [
-    {
-      id: 1,
-      candidateId: 1,
-      jobOpeningId: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john@example.com",
-      phone: "+216 95 111 222",
-      status: "interview",
-      experienceYears: 6,
-      currentPosition: "Developer",
-      currentCompany: "Tech Corp",
-      applicationDate: "2024-11-20",
-      rating: 4.5,
-    },
-    {
-      id: 2,
-      candidateId: 2,
-      jobOpeningId: 1,
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane@example.com",
-      phone: "+216 95 333 444",
-      status: "submitted",
-      experienceYears: 4,
-      currentPosition: "Senior Developer",
-      currentCompany: "Dev Solutions",
-      applicationDate: "2024-11-22",
-      rating: 4,
-    },
-  ]
-
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private recruitmentService: RecruitmentService,
+    private departmentService: DepartmentService
+  ) {
     this.jobForm = this.createJobForm()
   }
 
@@ -102,9 +44,10 @@ export class RecruitmentComponent implements OnInit {
     return this.formBuilder.group({
       jobTitle: ["", Validators.required],
       departmentId: ["", Validators.required],
-      requiredQualifications: ["", Validators.required],
       salaryMin: ["", [Validators.required, Validators.min(0)]],
       salaryMax: ["", [Validators.required, Validators.min(0)]],
+      description: ["", Validators.required],
+      requirements: ["", Validators.required],
       status: ["open", Validators.required],
     })
   }
@@ -112,19 +55,44 @@ export class RecruitmentComponent implements OnInit {
   ngOnInit(): void {
     this.loadJobs()
     this.loadCandidates()
+    this.loadDepartments()
+  }
+
+  loadDepartments(): void {
+    this.departmentService.getAllDepartments().subscribe({
+      next: (data) => {
+        this.departments = data
+      },
+      error: (error) => {
+        console.error('Error loading departments', error)
+      }
+    })
   }
 
   loadJobs(): void {
     this.loading = true
-    // Load mock jobs
-    this.jobs = this.mockJobs
-    this.loading = false
+    this.recruitmentService.getJobOpenings().subscribe({
+      next: (data) => {
+        this.jobs = data
+        this.loading = false
+      },
+      error: (error) => {
+        console.error('Error loading jobs', error)
+        this.loading = false
+      }
+    })
   }
 
   loadCandidates(): void {
-    // Load mock candidates
-    this.candidates = this.mockCandidates
-    this.applyFilters()
+    this.recruitmentService.getCandidates().subscribe({
+      next: (data) => {
+        this.candidates = data
+        this.applyFilters()
+      },
+      error: (error) => {
+        console.error('Error loading candidates', error)
+      }
+    })
   }
 
   applyFilters(): void {
@@ -144,8 +112,14 @@ export class RecruitmentComponent implements OnInit {
     }
 
     if (this.selectedJob) {
-      this.selectedJobCandidates = filtered.filter((c) => c.jobOpeningId === this.selectedJob?.id)
+      // Use _id or id depending on what backend returns. 
+      // Mongoose returns _id, but frontend model might expect id.
+      // Assuming we handle this or use _id if available.
+      const jobId = (this.selectedJob as any)._id || this.selectedJob.id || this.selectedJob.jobOpeningId
+      filtered = filtered.filter((c) => c.jobOpeningId === jobId || (c as any).jobOpeningId?._id === jobId)
     }
+
+    this.selectedJobCandidates = filtered
   }
 
   switchTab(tab: "jobs" | "candidates"): void {
@@ -175,59 +149,76 @@ export class RecruitmentComponent implements OnInit {
 
     this.loading = true
     const formValue = this.jobForm.value
-    const newJob: JobOpening = {
+
+    // Add default values required by backend if missing
+    const newJob: Partial<JobOpening> = {
       ...formValue,
-      id: Math.max(...this.mockJobs.map((j) => j.id), 0) + 1,
-      jobOpeningId: Math.max(...this.mockJobs.map((j) => j.jobOpeningId), 0) + 1,
-      departmentName: "IT",
+      departmentName: "IT", // This should probably come from a department selection or lookup
       positionCount: 1,
       requiredExperience: 3,
-      currency: "TND",
-      createdDate: new Date().toISOString().split("T")[0],
+      currency: "TND"
     }
-    this.mockJobs.push(newJob)
-    this.loadJobs()
-    this.closeJobForm()
+
+    this.recruitmentService.createJobOpening(newJob).subscribe({
+      next: () => {
+        this.loadJobs()
+        this.closeJobForm()
+      },
+      error: (error) => {
+        console.error('Error creating job', error)
+        this.loading = false
+      }
+    })
   }
 
-  closeJob(id: number): void {
+  closeJob(id: any): void {
     if (confirm("Êtes-vous sûr de vouloir fermer cette offre?")) {
       this.loading = true
-      // Mock close
-      const job = this.mockJobs.find((j) => j.id === id)
-      if (job) {
-        job.status = "closed"
-        job.closingDate = new Date().toISOString().split("T")[0]
-      }
-      this.loadJobs()
+      this.recruitmentService.closeJob(id).subscribe({
+        next: () => {
+          this.loadJobs()
+        },
+        error: (error) => {
+          console.error('Error closing job', error)
+          this.loading = false
+        }
+      })
     }
   }
 
   updateCandidateStatus(candidateId: number, status: string): void {
     this.loading = true
-    // Mock update
-    const candidate = this.mockCandidates.find((c) => c.id === candidateId)
-    if (candidate) {
-      candidate.status = status as "submitted" | "reviewed" | "interview" | "offered" | "rejected" | "hired"
-    }
-    this.loadCandidates()
-    if (this.selectedJob) {
-      this.applyFilters()
-    }
+    this.recruitmentService.updateCandidateStatus(candidateId, status).subscribe({
+      next: () => {
+        this.loadCandidates()
+        if (this.selectedJob) {
+          this.applyFilters()
+        }
+        this.loading = false
+      },
+      error: (error) => {
+        console.error('Error updating candidate status', error)
+        this.loading = false
+      }
+    })
   }
 
   hireCandidate(candidateId: number): void {
     if (confirm("Êtes-vous sûr de vouloir embaucher ce candidat?")) {
       this.loading = true
-      // Mock hire
-      const candidate = this.mockCandidates.find((c) => c.id === candidateId)
-      if (candidate) {
-        candidate.status = "hired"
-      }
-      this.loadCandidates()
-      if (this.selectedJob) {
-        this.applyFilters()
-      }
+      this.recruitmentService.hireCandidate(candidateId).subscribe({
+        next: () => {
+          this.loadCandidates()
+          if (this.selectedJob) {
+            this.applyFilters()
+          }
+          this.loading = false
+        },
+        error: (error) => {
+          console.error('Error hiring candidate', error)
+          this.loading = false
+        }
+      })
     }
   }
 
@@ -241,9 +232,13 @@ export class RecruitmentComponent implements OnInit {
     this.selectedCandidate = null
   }
 
-  getJobTitle(jobId: number): string {
-    const job = this.jobs.find((j) => j.id === jobId)
-    return job ? job.jobTitle || job.title || "Inconnu" : "Inconnu"
+  getJobTitle(jobId: any): string {
+    // jobId might be populated object or ID
+    if (jobId && typeof jobId === 'object') {
+      return jobId.jobTitle || jobId.title || "Inconnu"
+    }
+    const job = this.jobs.find((j) => j.id === jobId || (j as any)._id === jobId)
+    return job ? job.jobTitle || (job as any).title || "Inconnu" : "Inconnu"
   }
 
   getStatusBadgeClass(status: string): string {

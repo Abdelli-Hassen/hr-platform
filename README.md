@@ -1,159 +1,262 @@
-# Plateforme de Gestion des Ressources Humaines (HR Platform)
+# HR Platform - Plateforme RH
 
-Une application web complète pour la gestion du personnel, des salaires, des congés et du recrutement en Tunisie.
+A modern, full-stack Human Resources Management System built with Angular and Node.js, featuring a beautiful Glassmorphism UI design with dark mode support.
 
-## Caractéristiques
+![Angular](https://img.shields.io/badge/Angular-18-DD0031?style=flat&logo=angular)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=flat&logo=node.js)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?style=flat&logo=mongodb)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat&logo=typescript)
 
-### Modules Principaux
-1. **Gestion des Employés** - Profils complets, contrats, historique
-2. **Gestion de la Paie** - Calcul des salaires, fiches de paie, TND
-3. **Gestion des Congés** - Demandes de congés, absences, approbations
-4. **Recrutement** - Offres d'emploi, candidatures, évaluations
-5. **Tableaux de Bord** - Statistiques, analytiques, rapports
+## ✨ Features
 
-### Fonctionnalités de Sécurité
-- Authentification JWT
-- Autorisation basée sur les rôles (Admin/Employee/Manager)
-- Protection des données sensibles
-- Chiffrage des mots de passe
+### 🎨 Modern UI/UX
+- **Glassmorphism Design** - Premium aesthetic with frosted glass effects
+- **Dark Mode** - Seamless theme switching with localStorage persistence
+- **Responsive Layout** - Optimized for desktop, tablet, and mobile devices
+- **Smooth Animations** - Enhanced user experience with fluid transitions
 
-## Installation et Configuration
+### 👥 Employee Management
+- Complete CRUD operations for employee records
+- Automatic user account creation with password management
+- Department and position tracking
+- Employee status monitoring (active, on leave, inactive)
 
-### Prérequis
-- Node.js 16+
-- Angular CLI 15+
-- MySQL 8+
+### 💰 Payroll Management
+- Payroll calculation and tracking
+- Multiple status workflow (pending, validated, paid)
+- Salary breakdown and deductions
+- Payment history and records
 
-### Installation du Backend
+### 📅 Leave Management
+- Leave request submission and approval workflow
+- Multiple leave types (vacation, sick, personal)
+- Automatic employee status updates
+- Leave balance tracking
+- Absence monitoring
 
-\`\`\`bash
+### 💼 Recruitment
+- Job opening management
+- Candidate tracking system
+- Application status workflow
+- Interview scheduling
+- Hiring process management
+
+### 🔐 Authentication & Authorization
+- JWT-based authentication
+- Role-based access control (Admin/Employee)
+- Secure password handling with bcrypt
+- Protected routes and API endpoints
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Angular 18
+- **Language**: TypeScript
+- **Styling**: CSS with CSS Variables
+- **HTTP Client**: Angular HttpClient
+- **Routing**: Angular Router
+- **Forms**: Reactive Forms
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT (jsonwebtoken)
+- **Password Hashing**: bcryptjs
+- **CORS**: Enabled for cross-origin requests
+
+## 📋 Prerequisites
+
+- Node.js (v18 or higher)
+- MongoDB (local or Atlas)
+- npm or yarn package manager
+
+## 🚀 Installation
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/yourusername/platform_rh.git
+cd platform_rh
+```
+
+### 2. Install Frontend Dependencies
+```bash
+npm install
+```
+
+### 3. Install Backend Dependencies
+```bash
 cd backend
 npm install
-\`\`\`
+```
 
-### Configuration de la Base de Données
+### 4. Configure Environment Variables
+Create a `.env` file in the `backend` directory:
 
-1. Créez une base de données MySQL
-2. Exécutez le script SQL:
-\`\`\`bash
-mysql -u root -p < database/init.sql
-\`\`\`
+```env
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017/hr_platform
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+```
 
-3. Configurez les variables d'environnement dans `backend/.env`
+### 5. Seed the Database (Optional)
+```bash
+cd backend
+npm run seed
+```
 
-### Démarrage du Backend
+This will create:
+- Admin user: `admin@hrplatform.tn` / `admin123`
+- Sample employees and data
 
-\`\`\`bash
+## 🏃 Running the Application
+
+### Development Mode
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
 npm run dev
-\`\`\`
+```
+Backend runs on `http://localhost:3000`
 
-Le serveur démarre sur `http://localhost:3000`
-
-### Installation du Frontend (Angular)
-
-\`\`\`bash
-npm install
+**Terminal 2 - Frontend:**
+```bash
+npm start
+# or
 ng serve
-\`\`\`
+```
+Frontend runs on `http://localhost:4200`
 
-L'application démarre sur `http://localhost:4200`
+### Production Build
 
-## Comptes de Démonstration
+**Frontend:**
+```bash
+ng build --configuration production
+```
 
-### Admin
-- Email: `admin@hrplatform.tn`
-- Mot de passe: `admin123`
+**Backend:**
+```bash
+cd backend
+npm start
+```
 
-### Employé
-- Email: `m.benali@hrplatform.tn`
-- Mot de passe: `employee123`
+## 📁 Project Structure
 
-## Structure du Projet
-
-\`\`\`
-hr-platform/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── middleware/
-│   │   ├── routes/
-│   │   └── server.ts
-│   ├── database/
-│   │   └── init.sql
-│   └── package.json
-├── src/
+```
+platform_rh/
+├── src/                          # Angular frontend source
 │   ├── app/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── models/
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   └── app.module.ts
-│   └── styles.css
-└── README.md
-\`\`\`
+│   │   ├── components/          # Reusable components
+│   │   ├── layouts/             # Layout components (admin, employee)
+│   │   ├── models/              # TypeScript interfaces
+│   │   ├── pages/               # Page components
+│   │   ├── services/            # Angular services
+│   │   └── styles/              # Global styles and variables
+│   └── ...
+├── backend/                      # Node.js backend
+│   ├── src/
+│   │   ├── models/              # Mongoose schemas
+│   │   ├── routes/              # API routes
+│   │   ├── middleware/          # Express middleware
+│   │   ├── scripts/             # Utility scripts (seed, etc.)
+│   │   └── server.ts            # Express server entry point
+│   └── ...
+└── ...
+```
 
-## API Endpoints
+## 🎯 API Endpoints
 
-### Authentification
-- `POST /api/auth/login` - Connexion
-- `POST /api/auth/register` - Inscription
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
 
-### Employés
-- `GET /api/employees` - Tous les employés
-- `GET /api/employees/:id` - Employé spécifique
-- `POST /api/employees` - Créer employé
-- `PUT /api/employees/:id` - Mettre à jour employé
+### Employees
+- `GET /api/employees` - Get all employees
+- `GET /api/employees/:id` - Get employee by ID
+- `POST /api/employees` - Create employee
+- `PUT /api/employees/:id` - Update employee
+- `DELETE /api/employees/:id` - Delete employee
 
-### Paie
-- `GET /api/payroll` - Tous les fiches de paie
-- `POST /api/payroll` - Créer fiche de paie
-- `PUT /api/payroll/:id` - Mettre à jour fiche de paie
+### Payroll
+- `GET /api/payroll` - Get all payroll records
+- `POST /api/payroll` - Create payroll
+- `PUT /api/payroll/:id` - Update payroll status
 
-### Congés
-- `GET /api/leaves` - Tous les congés
-- `POST /api/leaves` - Demander un congé
-- `PUT /api/leaves/:id` - Approuver/Rejeter congé
+### Leaves
+- `GET /api/leaves` - Get all leave requests
+- `POST /api/leaves` - Create leave request
+- `PATCH /api/leaves/:id/approve` - Approve leave
+- `PATCH /api/leaves/:id/reject` - Reject leave
 
-### Recrutement
-- `GET /api/recruitment/openings` - Offres d'emploi
-- `POST /api/recruitment/openings` - Créer offre
-- `GET /api/recruitment/candidates` - Candidats
-- `POST /api/recruitment/candidates` - Soumettre candidature
-- `PUT /api/recruitment/candidates/:id` - Mettre à jour candidat
+### Recruitment
+- `GET /api/recruitment/openings` - Get job openings
+- `POST /api/recruitment/openings` - Create job opening
+- `GET /api/recruitment/candidates` - Get candidates
+- `POST /api/recruitment/candidates` - Add candidate
+- `PATCH /api/recruitment/candidates/:id/status` - Update candidate status
 
-## Utilisation
+## 🎨 Design System
 
-### Pour les Administrateurs
-1. Connectez-vous avec vos identifiants admin
-2. Accédez au tableau de bord administrateur
-3. Gérez les employés, la paie, les congés et le recrutement
-4. Consultez les statistiques et rapports
+### Color Palette
+- **Primary**: Indigo to Pink gradient (`#6366f1` → `#ec4899`)
+- **Success**: Green (`#22c55e`)
+- **Warning**: Amber (`#f59e0b`)
+- **Danger**: Red (`#ef4444`)
 
-### Pour les Employés
-1. Connectez-vous avec vos identifiants
-2. Consultez votre profil et vos informations
-3. Visualisez vos fiches de paie
-4. Demandez des congés
-5. Suivez l'état de vos demandes
+### Dark Mode
+The application features a comprehensive dark mode that affects:
+- All page backgrounds
+- Cards and containers
+- Tables and forms
+- Modals and overlays
+- Navigation elements
 
-## Personnalisation
+Toggle dark mode using the moon/sun icon in the admin sidebar.
 
-### Modifier les Couleurs
-Éditez `src/styles.css` pour personnaliser le thème
+## 👤 Default Credentials
 
-### Ajouter des Champs Employé
-1. Modifiez le schéma MySQL dans `backend/database/init.sql`
-2. Mettez à jour le modèle TypeScript `src/app/models/employee.model.ts`
-3. Mettez à jour les formulaires dans les composants
+After running the seed script:
 
-## Support et Maintenance
+**Admin Account:**
+- Email: `admin@hrplatform.tn`
+- Password: `admin123`
 
-Pour toute question ou problème:
-1. Vérifiez les logs du serveur
-2. Consultez la documentation de l'API
-3. Vérifiez la configuration de la base de données
+**Employee Account:**
+- Email: `employee@hrplatform.tn`
+- Password: `emp123`
 
-## Licence
+> ⚠️ **Important**: Change these credentials in production!
 
-Propriétaire - Tous droits réservés
+## 🔒 Security Features
+
+- JWT token-based authentication
+- Password hashing with bcrypt
+- Protected API routes with middleware
+- Role-based access control
+- CORS configuration
+- Input validation
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 👨‍💻 Author
+
+**Abdelli Hassen**
+
+## 🙏 Acknowledgments
+
+- Angular team for the amazing framework
+- MongoDB for the flexible database solution
+- The open-source community for inspiration and tools

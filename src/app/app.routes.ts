@@ -7,39 +7,23 @@ import { EmployeeListComponent } from "./pages/employees/employee-list.component
 import { PayrollListComponent } from "./pages/payroll/payroll-list.component"
 import { LeaveListComponent } from "./pages/leaves/leave-list.component"
 import { RecruitmentComponent } from "./pages/recruitment/recruitment.component"
+import { AdminLayoutComponent } from "./layouts/admin-layout/admin-layout.component"
 
 export const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
   { path: "login", component: LoginComponent },
   {
     path: "admin",
+    component: AdminLayoutComponent,
     canActivate: [AuthGuard],
     data: { role: "admin" },
-    component: AdminDashboardComponent,
-  },
-  {
-    path: "admin/employees",
-    canActivate: [AuthGuard],
-    data: { role: "admin" },
-    component: EmployeeListComponent,
-  },
-  {
-    path: "admin/payroll",
-    canActivate: [AuthGuard],
-    data: { role: "admin" },
-    component: PayrollListComponent,
-  },
-  {
-    path: "admin/leaves",
-    canActivate: [AuthGuard],
-    data: { role: "admin" },
-    component: LeaveListComponent,
-  },
-  {
-    path: "admin/recruitment",
-    canActivate: [AuthGuard],
-    data: { role: "admin" },
-    component: RecruitmentComponent,
+    children: [
+      { path: "", component: AdminDashboardComponent },
+      { path: "employees", component: EmployeeListComponent },
+      { path: "payroll", component: PayrollListComponent },
+      { path: "leaves", component: LeaveListComponent },
+      { path: "recruitment", component: RecruitmentComponent },
+    ],
   },
   {
     path: "employee",

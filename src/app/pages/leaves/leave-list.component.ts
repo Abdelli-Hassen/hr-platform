@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, type FormGroup, Validato
 import type { Leave, Absence } from "../../models/leave.model"
 import type { Employee } from "../../models/employee.model"
 import { AuthService } from "../../services/auth.service"
+import { LeaveService } from "../../services/leave.service"
+import { EmployeeService } from "../../services/employee.service"
 
 @Component({
   selector: "app-leave-list",
@@ -35,47 +37,10 @@ export class LeaveListComponent implements OnInit {
 
   currentUser: any = null
 
-  private mockLeaves: Leave[] = [
-    {
-      id: 1,
-      leaveId: 1,
-      employeeId: 1,
-      firstName: "Marwan",
-      lastName: "Benali",
-      leaveType: "annual",
-      startDate: "2024-12-20",
-      endDate: "2024-12-25",
-      reason: "Holiday",
-      status: "approved",
-      approvalDate: "2024-12-10",
-    },
-    {
-      id: 2,
-      leaveId: 2,
-      employeeId: 2,
-      firstName: "Fatima",
-      lastName: "Oueslati",
-      leaveType: "sick",
-      startDate: "2024-12-15",
-      endDate: "2024-12-16",
-      reason: "Medical",
-      status: "pending",
-    },
-  ]
-
-  private mockAbsences: Absence[] = [
-    {
-      id: 1,
-      employeeId: 1,
-      date: "2024-12-05",
-      type: "late",
-      reason: "Traffic",
-      createdAt: "2024-12-05T09:30:00Z",
-    },
-  ]
-
   constructor(
     private authService: AuthService,
+    private leaveService: LeaveService,
+    private employeeService: EmployeeService,
     private formBuilder: FormBuilder,
   ) {
     this.currentUser = this.authService.getCurrentUser()
@@ -104,32 +69,61 @@ export class LeaveListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadEmployees()
     this.loadLeaves()
     this.loadAbsences()
-    this.loadEmployees()
   }
 
   loadLeaves(): void {
     this.loading = true
-    // Load mock leaves
-    this.leaves = this.mockLeaves
-    this.applyFilters()
-    this.loading = false
+    this.leaveService.getAll().subscribe({
+      next: (data) => {
+        this.leaves = data
+        this.applyFilters()
+        this.loading = false
+      },
+      error: (error) => {
+        console.error('Error loading leaves', error)
+        this.loading = false
+      }
+    })
   }
 
   loadAbsences(): void {
-    // Load mock absences
-    this.absences = this.mockAbsences
+    this.leaveService.getAbsences().subscribe({
+      next: (data) => {
+        this.absences = data
+      },
+      error: (error) => {
+        console.error('Error loading absences', error)
+      }
+    })
   }
 
   loadEmployees(): void {
-    // No employees needed for now
+    this.employeeService.getAllEmployees().subscribe({
+      next: (data) => {
+        this.employees = data
+      },
+      error: (error) => {
+        console.error('Error loading employees', error)
+      }
+    })
   }
 
   applyFilters(): void {
     this.filteredLeaves = this.leaves.filter((leave) => {
-      const employee = this.employees.find((e) => e.id === leave.employeeId)
-      const empName = employee ? `${employee.firstName} ${employee.lastName}` : ""
+      // Note: leave.employeeId might be populated object or ID
+      // If populated, we can access firstName directly.
+      // If ID, we look up in this.employees.
+      let empName = ""
+      if (leave.employeeId && typeof leave.employeeId === 'object') {
+        const emp = leave.employeeId as any
+        empName = `${emp.firstName} ${emp.lastName}`
+      } else {
+        const employee = this.employees.find((e) => e.id === leave.employeeId)
+        empName = employee ? `${employee.firstName} ${employee.lastName}` : ""
+      }
 
       const matchSearch = empName.toLowerCase().includes(this.searchText.toLowerCase())
       const matchStatus = !this.filterStatus || leave.status === this.filterStatus
@@ -152,9 +146,11 @@ export class LeaveListComponent implements OnInit {
   openLeaveForm(): void {
     this.showLeaveForm = true
     if (this.currentUser?.role === "employee") {
-      const employee = this.employees.find((e) => e.userId === this.currentUser?.id)
-      if (employee) {
-        this.leaveForm.patchValue({ employeeId: employee.id, status: "pending" })
+      // Assuming currentUser has employeeId or we can find it
+      // The auth service returns user with employee object now
+      const empId = this.currentUser.employee?.employee_id || this.currentUser.employee?._id
+      if (empId) {
+        this.leaveForm.patchValue({ employeeId: empId, status: "pending" })
       }
     }
   }
@@ -180,14 +176,17 @@ export class LeaveListComponent implements OnInit {
 
     this.loading = true
     const formValue = this.leaveForm.value
-    const newLeave: Leave = {
-      ...formValue,
-      id: Math.max(...this.mockLeaves.map((l) => l.id), 0) + 1,
-      leaveId: Math.max(...this.mockLeaves.map((l) => l.leaveId), 0) + 1,
-    }
-    this.mockLeaves.push(newLeave)
-    this.loadLeaves()
-    this.closeLeaveForm()
+
+    this.leaveService.createLeave(formValue).subscribe({
+      next: () => {
+        this.loadLeaves()
+        this.closeLeaveForm()
+      },
+      error: (error) => {
+        console.error('Error creating leave', error)
+        this.loading = false
+      }
+    })
   }
 
   saveAbsence(): void {
@@ -197,38 +196,50 @@ export class LeaveListComponent implements OnInit {
 
     this.loading = true
     const formValue = this.absenceForm.value
-    const newAbsence: Absence = {
-      ...formValue,
-      id: Math.max(...this.mockAbsences.map((a) => a.id), 0) + 1,
-      createdAt: new Date().toISOString(),
-    }
-    this.mockAbsences.push(newAbsence)
-    this.loadAbsences()
-    this.closeAbsenceForm()
+
+    this.leaveService.recordAbsence(formValue).subscribe({
+      next: () => {
+        this.loadAbsences()
+        this.closeAbsenceForm()
+        this.loading = false
+      },
+      error: (error) => {
+        console.error('Error recording absence', error)
+        this.loading = false
+      }
+    })
   }
 
   approveLeave(id: number): void {
     this.loading = true
-    // Mock approve
-    const leave = this.mockLeaves.find((l) => l.id === id)
-    if (leave) {
-      leave.status = "approved"
-      leave.approvalDate = new Date().toISOString().split("T")[0]
-    }
-    this.loadLeaves()
+    this.leaveService.approveLeave(id).subscribe({
+      next: () => {
+        this.loadLeaves()
+      },
+      error: (error) => {
+        console.error('Error approving leave', error)
+        this.loading = false
+      }
+    })
   }
 
   rejectLeave(id: number): void {
     this.loading = true
-    // Mock reject
-    const leave = this.mockLeaves.find((l) => l.id === id)
-    if (leave) {
-      leave.status = "rejected"
-    }
-    this.loadLeaves()
+    this.leaveService.rejectLeave(id).subscribe({
+      next: () => {
+        this.loadLeaves()
+      },
+      error: (error) => {
+        console.error('Error rejecting leave', error)
+        this.loading = false
+      }
+    })
   }
 
-  getEmployeeName(employeeId: number): string {
+  getEmployeeName(employeeId: any): string {
+    if (employeeId && typeof employeeId === 'object') {
+      return `${employeeId.firstName} ${employeeId.lastName}`
+    }
     const employee = this.employees.find((e) => e.id === employeeId)
     return employee ? `${employee.firstName} ${employee.lastName}` : "Inconnu"
   }

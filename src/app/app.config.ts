@@ -8,5 +8,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),
+    // Remove mockBackendInterceptor to use real backend
   ],
 }

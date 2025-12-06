@@ -9,7 +9,7 @@ import type { DashboardStats } from "../models/dashboard-stats.model"
 export class DashboardService {
   private apiUrl = "/api/dashboard"
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAdminStats(): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${this.apiUrl}/admin/stats`)

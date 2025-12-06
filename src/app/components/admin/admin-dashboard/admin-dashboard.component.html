@@ -10,39 +10,19 @@
 
   <!-- Navigation Tabs -->
   <div class="nav-tabs">
-    <button
-      [class.active]="activeTab === 'overview'"
-      (click)="activeTab = 'overview'"
-      class="nav-tab"
-    >
+    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'" class="nav-tab">
       Vue d'ensemble
     </button>
-    <button
-      [class.active]="activeTab === 'employees'"
-      (click)="activeTab = 'employees'"
-      class="nav-tab"
-    >
+    <button [class.active]="activeTab === 'employees'" (click)="activeTab = 'employees'" class="nav-tab">
       Employés
     </button>
-    <button
-      [class.active]="activeTab === 'payroll'"
-      (click)="activeTab = 'payroll'"
-      class="nav-tab"
-    >
+    <button [class.active]="activeTab === 'payroll'" (click)="activeTab = 'payroll'" class="nav-tab">
       Paie
     </button>
-    <button
-      [class.active]="activeTab === 'leaves'"
-      (click)="activeTab = 'leaves'"
-      class="nav-tab"
-    >
+    <button [class.active]="activeTab === 'leaves'" (click)="activeTab = 'leaves'" class="nav-tab">
       Congés
     </button>
-    <button
-      [class.active]="activeTab === 'recruitment'"
-      (click)="activeTab = 'recruitment'"
-      class="nav-tab"
-    >
+    <button [class.active]="activeTab === 'recruitment'" (click)="activeTab = 'recruitment'" class="nav-tab">
       Recrutement
     </button>
   </div>
@@ -260,7 +240,8 @@
               </td>
               <td>
                 <button class="btn-sm btn-edit">Voir</button>
-                <button class="btn-sm btn-delete" *ngIf="payroll.status === 'calculated'" (click)="validatePayroll(payroll.id)">Valider</button>
+                <button class="btn-sm btn-delete" *ngIf="payroll.status === 'pending'"
+                  (click)="validatePayroll(payroll.id)">Valider</button>
               </td>
             </tr>
           </tbody>
@@ -275,12 +256,8 @@
       </div>
 
       <div class="leaves-filters">
-        <button
-          *ngFor="let status of ['pending', 'approved', 'rejected']"
-          [class.active]="selectedLeaveStatus === status"
-          (click)="selectedLeaveStatus = status"
-          class="filter-btn"
-        >
+        <button *ngFor="let status of ['pending', 'approved', 'rejected']"
+          [class.active]="selectedLeaveStatus === status" (click)="selectedLeaveStatus = status" class="filter-btn">
           {{ getLeaveStatusLabel(status) }}
         </button>
       </div>
@@ -334,18 +311,12 @@
       </div>
 
       <div class="recruitment-tabs">
-        <button
-          [class.active]="recruitmentTab === 'openings'"
-          (click)="recruitmentTab = 'openings'"
-          class="recruitment-tab"
-        >
+        <button [class.active]="recruitmentTab === 'openings'" (click)="recruitmentTab = 'openings'"
+          class="recruitment-tab">
           Offres d'Emploi
         </button>
-        <button
-          [class.active]="recruitmentTab === 'candidates'"
-          (click)="recruitmentTab = 'candidates'"
-          class="recruitment-tab"
-        >
+        <button [class.active]="recruitmentTab === 'candidates'" (click)="recruitmentTab = 'candidates'"
+          class="recruitment-tab">
           Candidats
         </button>
       </div>

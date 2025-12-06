@@ -9,17 +9,17 @@ import type { Employee } from "../models/employee.model"
 export class EmployeeService {
   private apiUrl = "/api/employees"
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(): Observable<Employee[]> {
     return this.http.get<Employee[]>(this.apiUrl)
   }
 
-  getByUserId(userId: number): Observable<Employee> {
+  getByUserId(userId: any): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}/user/${userId}`)
   }
 
-  getByEmployeeId(employeeId: number): Observable<Employee> {
+  getByEmployeeId(employeeId: any): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}/${employeeId}`)
   }
 
@@ -27,7 +27,7 @@ export class EmployeeService {
     return this.http.get<Employee[]>(this.apiUrl)
   }
 
-  getEmployeeById(id: number): Observable<Employee> {
+  getEmployeeById(id: any): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}/${id}`)
   }
 
@@ -39,15 +39,15 @@ export class EmployeeService {
     return this.http.post(this.apiUrl, employee)
   }
 
-  update(id: number, employee: Partial<Employee>): Observable<any> {
+  update(id: any, employee: Partial<Employee>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, employee)
   }
 
-  updateEmployee(id: number, employee: Partial<Employee>): Observable<any> {
+  updateEmployee(id: any, employee: Partial<Employee>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, employee)
   }
 
-  delete(id: number): Observable<any> {
+  delete(id: any): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`)
   }
 }

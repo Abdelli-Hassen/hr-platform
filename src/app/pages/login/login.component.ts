@@ -17,21 +17,6 @@ export class LoginComponent {
   submitted = false
   error = ""
 
-  // Mock accounts - no API needed
-  private mockAccounts = {
-    "admin@hrplatform.tn": {
-      password: "admin123",
-      role: "admin" as const,
-      firstName: "Admin",
-      lastName: "User",
-    },
-    "m.benali@hrplatform.tn": {
-      password: "employee123",
-      role: "employee" as const,
-      firstName: "Marwan",
-      lastName: "Benali",
-    },
-  }
 
   constructor(
     private formBuilder: FormBuilder,
@@ -57,37 +42,21 @@ export class LoginComponent {
     }
 
     this.loading = true
-    const email = String(this.f["email"].value || "").trim()
-    const password = String(this.f["password"].value || "").trim()
+    const email = this.f["email"].value
+    const password = this.f["password"].value
 
-    // Mock authentication
-    const account = this.mockAccounts[email as keyof typeof this.mockAccounts]
-    if (!account || account.password !== password) {
-      this.error = "Invalid credentials"
-      this.loading = false
-      return
-    }
-
-    // Store mock user
-    const mockUser = {
-      id: email === "admin@hrplatform.tn" ? 1 : 2,
-      email,
-      role: account.role,
-      employee: {
-        employee_id: email === "admin@hrplatform.tn" ? 101 : 102,
-        first_name: account.firstName,
-        last_name: account.lastName,
+    this.authService.login({ email, password }).subscribe({
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.router.navigate(["/admin"])
+        } else {
+          this.router.navigate(["/employee"])
+        }
       },
-    }
-
-    localStorage.setItem("token", "mock_token_" + Date.now())
-    localStorage.setItem("user", JSON.stringify(mockUser))
-
-    // Navigate based on role
-    if (mockUser.role === "admin") {
-      this.router.navigate(["/admin"])
-    } else if (mockUser.role === "employee") {
-      this.router.navigate(["/employee"])
-    }
+      error: (err) => {
+        this.error = err.error?.error || "Invalid credentials"
+        this.loading = false
+      }
+    })
   }
 }

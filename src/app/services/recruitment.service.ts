@@ -9,7 +9,7 @@ import type { JobOpening, Candidate } from "../models/recruitment.model"
 export class RecruitmentService {
   private apiUrl = "/api/recruitment"
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getJobOpenings(): Observable<JobOpening[]> {
     return this.http.get<JobOpening[]>(`${this.apiUrl}/openings`)
@@ -46,15 +46,15 @@ export class RecruitmentService {
     return this.createJobOpening(job)
   }
 
-  closeJob(id: number): Observable<any> {
+  closeJob(id: any): Observable<any> {
     return this.http.patch(`${this.apiUrl}/openings/${id}/close`, {})
   }
 
-  updateCandidateStatus(id: number, status: string): Observable<any> {
+  updateCandidateStatus(id: any, status: string): Observable<any> {
     return this.updateCandidate(id, { status: status as any })
   }
 
-  hireCandidate(id: number): Observable<any> {
+  hireCandidate(id: any): Observable<any> {
     return this.updateCandidate(id, { status: "hired" as any })
   }
 }

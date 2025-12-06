@@ -4,6 +4,9 @@
       <h1>Gestion de la Paie</h1>
       <p>Gérez et suivez les salaires en TND</p>
     </div>
+    <button class="btn btn-secondary" (click)="exportToCsv()" style="margin-right: 10px;">
+      Export CSV
+    </button>
     <button class="btn btn-primary" (click)="openForm()" *ngIf="!showForm">
       + Créer Fiche de Paie
     </button>
@@ -23,7 +26,7 @@
             <label>Employé *</label>
             <select class="form-control" formControlName="employeeId" [disabled]="!!editingId">
               <option value="">Sélectionner...</option>
-              <option *ngFor="let emp of employees" [value]="emp.id">
+              <option *ngFor="let emp of employees" [value]="emp.id || emp._id">
                 {{ emp.firstName }} {{ emp.lastName }}
               </option>
             </select>
@@ -59,13 +62,15 @@
         <div class="salary-summary">
           <div class="summary-item">
             <span>Salaire net:</span>
-            <strong>{{ formatCurrency((payrollForm.get('baseSalary')?.value || 0) + (payrollForm.get('allowances')?.value || 0) - (payrollForm.get('deductions')?.value || 0)) }}</strong>
+            <strong>{{ formatCurrency((payrollForm.get('baseSalary')?.value || 0) +
+              (payrollForm.get('allowances')?.value || 0) - (payrollForm.get('deductions')?.value || 0)) }}</strong>
           </div>
         </div>
 
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeForm()">Annuler</button>
-          <button type="button" class="btn btn-primary" (click)="savePayroll()" [disabled]="payrollForm.invalid || loading">
+          <button type="button" class="btn btn-primary" (click)="savePayroll()"
+            [disabled]="payrollForm.invalid || loading">
             {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
           </button>
         </div>
@@ -75,13 +80,8 @@
 
   <!-- Filters -->
   <div class="filters-section">
-    <input
-      type="text"
-      placeholder="Rechercher par employé..."
-      class="form-control"
-      [(ngModel)]="searchText"
-      (change)="onFilterChange()"
-    />
+    <input type="text" placeholder="Rechercher par employé..." class="form-control" [(ngModel)]="searchText"
+      (change)="onFilterChange()" />
     <select class="form-control" [(ngModel)]="filterMonth" (change)="onFilterChange()">
       <option value="0">Tous les mois</option>
       <option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">{{ m }}</option>
@@ -126,18 +126,12 @@
           </td>
           <td>
             <div class="action-buttons">
-              <button
-                *ngIf="payroll.status === 'pending'"
-                class="btn btn-sm btn-success"
-                (click)="approvePayroll(payroll.id)"
-              >
+              <button *ngIf="payroll.status === 'pending'" class="btn btn-sm btn-success"
+                (click)="approvePayroll(payroll.id)">
                 Approuver
               </button>
-              <button
-                *ngIf="payroll.status === 'validated'"
-                class="btn btn-sm btn-success"
-                (click)="payPayroll(payroll.id)"
-              >
+              <button *ngIf="payroll.status === 'validated'" class="btn btn-sm btn-success"
+                (click)="payPayroll(payroll.id)">
                 Payer
               </button>
               <button class="btn btn-sm btn-info" (click)="openForm(payroll)">Modifier</button>

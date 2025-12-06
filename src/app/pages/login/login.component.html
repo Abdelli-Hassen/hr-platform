@@ -12,14 +12,8 @@
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          class="form-control"
-          formControlName="email"
-          placeholder="Entrez votre email"
-          [class.is-invalid]="submitted && f['email'].errors"
-        />
+        <input type="email" id="email" class="form-control" formControlName="email" placeholder="Entrez votre email"
+          [class.is-invalid]="submitted && f['email'].errors" />
         <div *ngIf="submitted && f['email'].errors" class="error-message">
           <span *ngIf="f['email'].errors['required']">Email est requis</span>
           <span *ngIf="f['email'].errors['email']">Email invalide</span>
@@ -28,32 +22,16 @@
 
       <div class="form-group">
         <label for="password">Mot de passe</label>
-        <input
-          type="password"
-          id="password"
-          class="form-control"
-          formControlName="password"
-          placeholder="Entrez votre mot de passe"
-          [class.is-invalid]="submitted && f['password'].errors"
-        />
+        <input type="password" id="password" class="form-control" formControlName="password"
+          placeholder="Entrez votre mot de passe" [class.is-invalid]="submitted && f['password'].errors" />
         <div *ngIf="submitted && f['password'].errors" class="error-message">
           <span *ngIf="f['password'].errors['required']">Mot de passe est requis</span>
         </div>
       </div>
 
-      <button
-        type="submit"
-        class="btn btn-primary btn-block"
-        [disabled]="loading"
-      >
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
         {{ loading ? 'Connexion...' : 'Connexion' }}
       </button>
-
-      <div class="demo-accounts">
-        <p>Comptes de démonstration:</p>
-        <small>Admin: admin@hrplatform.tn / admin123</small>
-        <small>Employee: employee@hrplatform.tn / emp123</small>
-      </div>
     </form>
   </div>
 </div>

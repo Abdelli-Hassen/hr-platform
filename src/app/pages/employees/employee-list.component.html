@@ -32,6 +32,11 @@
             <input type="email" class="form-control" formControlName="email" />
           </div>
           <div class="form-group">
+            <label>Mot de passe (Compte Utilisateur)</label>
+            <input type="text" class="form-control" formControlName="password"
+              placeholder="Laisser vide pour ne pas changer" />
+          </div>
+          <div class="form-group">
             <label>Téléphone *</label>
             <input type="tel" class="form-control" formControlName="phoneNumber" />
           </div>
@@ -59,7 +64,7 @@
             <label>Département *</label>
             <select class="form-control" formControlName="departmentId">
               <option value="">Sélectionner...</option>
-              <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+              <option *ngFor="let dept of departments" [value]="dept._id">{{ dept.departmentName }}</option>
             </select>
           </div>
           <div class="form-group">
@@ -82,7 +87,8 @@
 
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeForm()">Annuler</button>
-          <button type="button" class="btn btn-primary" (click)="saveEmployee()" [disabled]="employeeForm.invalid || loading">
+          <button type="button" class="btn btn-primary" (click)="saveEmployee()"
+            [disabled]="employeeForm.invalid || loading">
             {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
           </button>
         </div>
@@ -93,17 +99,12 @@
   <!-- Filters -->
   <div class="filters-section">
     <div class="search-box">
-      <input
-        type="text"
-        placeholder="Rechercher par nom, email..."
-        class="form-control"
-        [(ngModel)]="searchText"
-        (change)="onSearchChange()"
-      />
+      <input type="text" placeholder="Rechercher par nom, email..." class="form-control" [(ngModel)]="searchText"
+        (change)="onSearchChange()" />
     </div>
     <select class="form-control" [(ngModel)]="filterDepartment" (change)="onFilterChange()">
       <option value="">Tous les départements</option>
-      <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+      <option *ngFor="let dept of departments" [value]="dept._id">{{ dept.departmentName }}</option>
     </select>
     <select class="form-control" [(ngModel)]="filterStatus" (change)="onFilterChange()">
       <option value="">Tous les statuts</option>
@@ -120,6 +121,7 @@
         <tr>
           <th>Nom</th>
           <th>Email</th>
+          <th>Mot de passe</th>
           <th>Poste</th>
           <th>Département</th>
           <th>Salaire</th>
@@ -136,6 +138,17 @@
             </div>
           </td>
           <td>{{ employee.email }}</td>
+          <td>
+            <div class="password-cell" *ngIf="employee.visiblePassword">
+              <span class="password-text">
+                {{ isPasswordVisible(employee.id || employee._id) ? employee.visiblePassword : '••••••••' }}
+              </span>
+              <button class="btn-icon" (click)="togglePassword(employee.id || employee._id)">
+                {{ isPasswordVisible(employee.id || employee._id) ? '👁️' : '🔒' }}
+              </button>
+            </div>
+            <span *ngIf="!employee.visiblePassword" class="text-muted">-</span>
+          </td>
           <td>{{ employee.jobTitle }}</td>
           <td>{{ employee.departmentName }}</td>
           <td>{{ formatSalary(employee.salary) }}</td>

@@ -6,7 +6,9 @@ export interface JobOpening {
   departmentName: string
   positionCount: number
   requiredExperience: number
-  requiredQualifications: string
+  requiredQualifications?: string
+  description: string
+  requirements?: string
   salaryMin: number
   salaryMax: number
   currency: string

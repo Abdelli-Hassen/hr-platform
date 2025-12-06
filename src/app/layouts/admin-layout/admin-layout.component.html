@@ -1,0 +1,51 @@
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">RH</div>
+            <h2>Plateforme RH</h2>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                class="menu-item">
+                <span class="icon">📊</span>
+                <span>Tableau de bord</span>
+            </a>
+            <a routerLink="/admin/employees" routerLinkActive="active" class="menu-item">
+                <span class="icon">👥</span>
+                <span>Employés</span>
+            </a>
+            <a routerLink="/admin/payroll" routerLinkActive="active" class="menu-item">
+                <span class="icon">💰</span>
+                <span>Paie</span>
+            </a>
+            <a routerLink="/admin/leaves" routerLinkActive="active" class="menu-item">
+                <span class="icon">📅</span>
+                <span>Congés</span>
+            </a>
+            <a routerLink="/admin/recruitment" routerLinkActive="active" class="menu-item">
+                <span class="icon">💼</span>
+                <span>Recrutement</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-theme-toggle" (click)="toggleTheme()"
+                [title]="isDarkMode ? 'Mode clair' : 'Mode sombre'">
+                <span class="icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
+                <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
+            </button>
+
+            <button class="btn-logout" (click)="logout()">
+                <span class="icon">🚪</span>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <router-outlet></router-outlet>
+    </main>
+</div>

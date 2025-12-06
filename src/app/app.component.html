@@ -1,18 +1,83 @@
 <!-- Global Top Navbar -->
 <style>
-  .app-nav{position:sticky;top:0;z-index:1000;height:64px;background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);color:#fff;display:flex;align-items:center;justify-content:center}
-  .app-nav .brand{position:absolute;left:16px;display:flex;align-items:center;gap:10px}
-  .app-nav .logo{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:700}
-  .app-nav .title{font-weight:700;letter-spacing:.3px}
-  .app-nav .nav-links{display:flex;gap:18px}
-  .app-nav .nav-links a{color:#fff;text-decoration:none;font-size:14px}
-  .app-nav .nav-links a:hover{text-decoration:underline}
-  .app-nav .logout-area{position:absolute;right:16px;display:flex;align-items:center}
-  .btn-logout{padding:12px 15px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;cursor:pointer;font-weight:600}
-  .btn-logout:hover{background:rgba(255,255,255,0.2)}
-  .app-content{padding:16px}
+  .app-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 64px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center
+  }
+
+  .app-nav .brand {
+    position: absolute;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px
+  }
+
+  .app-nav .logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700
+  }
+
+  .app-nav .title {
+    font-weight: 700;
+    letter-spacing: .3px
+  }
+
+  .app-nav .nav-links {
+    display: flex;
+    gap: 18px
+  }
+
+  .app-nav .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px
+  }
+
+  .app-nav .nav-links a:hover {
+    text-decoration: underline
+  }
+
+  .app-nav .logout-area {
+    position: absolute;
+    right: 16px;
+    display: flex;
+    align-items: center
+  }
+
+  .btn-logout {
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600
+  }
+
+  .btn-logout:hover {
+    background: rgba(255, 255, 255, 0.2)
+  }
+
+  .app-content {
+    padding: 16px
+  }
 </style>
-<nav class="app-nav" *ngIf="!router.url.includes('/login')">
+<nav class="app-nav"
+  *ngIf="!router.url.includes('/login') && !router.url.includes('/employee') && !router.url.includes('/admin')">
   <div class="brand">
     <div class="logo">RH</div>
     <div class="title">Platforme RH</div>
@@ -29,6 +94,7 @@
     <button class="btn-logout" (click)="onLogout()">Déconnexion</button>
   </div>
 </nav>
-<div class="app-content" [style.padding.px]="router.url.includes('/login') ? 0 : 16">
+<div class="app-content"
+  [style.padding.px]="router.url.includes('/login') || router.url.includes('/employee') ? 0 : 16">
   <router-outlet></router-outlet>
 </div>

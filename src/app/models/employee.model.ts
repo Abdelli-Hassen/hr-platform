@@ -1,4 +1,5 @@
 export interface Employee {
+  _id?: string
   id: number
   employeeId: number
   userId: number
@@ -26,4 +27,6 @@ export interface Employee {
   status?: string
   createdAt: string
   updatedAt: string
+  password?: string
+  visiblePassword?: string
 }

@@ -4,29 +4,17 @@
       <h1>Recrutement</h1>
       <p>Gérez les offres d'emploi et les candidatures</p>
     </div>
-    <button 
-      class="btn btn-primary" 
-      (click)="openJobForm()"
-      *ngIf="!showJobForm && activeTab === 'jobs'"
-    >
+    <button class="btn btn-primary" (click)="openJobForm()" *ngIf="!showJobForm && activeTab === 'jobs'">
       + Nouvelle Offre
     </button>
   </div>
 
   <!-- Tabs -->
   <div class="tabs">
-    <button 
-      [class.active]="activeTab === 'jobs'"
-      (click)="switchTab('jobs')"
-      class="tab-btn"
-    >
+    <button [class.active]="activeTab === 'jobs'" (click)="switchTab('jobs')" class="tab-btn">
       Offres d'Emploi
     </button>
-    <button 
-      [class.active]="activeTab === 'candidates'"
-      (click)="switchTab('candidates')"
-      class="tab-btn"
-    >
+    <button [class.active]="activeTab === 'candidates'" (click)="switchTab('candidates')" class="tab-btn">
       Candidats
     </button>
   </div>
@@ -46,11 +34,18 @@
         </div>
         <div class="form-group">
           <label>Département *</label>
-          <input type="text" class="form-control" formControlName="department" />
+          <select class="form-control" formControlName="departmentId">
+            <option value="">Sélectionner...</option>
+            <option *ngFor="let dept of departments" [value]="dept._id">{{ dept.departmentName }}</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Salaire (TND) *</label>
-          <input type="number" class="form-control" formControlName="salary" />
+          <label>Salaire Min (TND) *</label>
+          <input type="number" class="form-control" formControlName="salaryMin" />
+        </div>
+        <div class="form-group">
+          <label>Salaire Max (TND) *</label>
+          <input type="number" class="form-control" formControlName="salaryMax" />
         </div>
         <div class="form-group col-span-2">
           <label>Description *</label>
@@ -107,18 +102,12 @@
         </div>
 
         <div class="detail-actions">
-          <select 
-            class="form-control" 
-            [(ngModel)]="selectedCandidate.status"
-            (change)="updateCandidateStatus(selectedCandidate!.id, selectedCandidate!.status)"
-          >
+          <select class="form-control" [(ngModel)]="selectedCandidate.status"
+            (change)="updateCandidateStatus(selectedCandidate!.id, selectedCandidate!.status)">
             <option *ngFor="let status of candidateStatuses" [value]="status">{{ status }}</option>
           </select>
-          <button 
-            *ngIf="selectedCandidate.status !== 'hired' && selectedCandidate.status !== 'rejected'"
-            class="btn btn-success"
-            (click)="hireCandidate(selectedCandidate!.id)"
-          >
+          <button *ngIf="selectedCandidate.status !== 'hired' && selectedCandidate.status !== 'rejected'"
+            class="btn btn-success" (click)="hireCandidate(selectedCandidate!.id)">
             Embaucher
           </button>
         </div>
@@ -129,12 +118,8 @@
   <!-- Jobs Tab -->
   <div *ngIf="activeTab === 'jobs'" class="jobs-section">
     <div class="jobs-grid">
-      <div 
-        *ngFor="let job of jobs"
-        class="job-card"
-        (click)="selectJob(job)"
-        [class.active]="selectedJob?.id === job.id"
-      >
+      <div *ngFor="let job of jobs" class="job-card" (click)="selectJob(job)"
+        [class.active]="selectedJob?.id === job.id">
         <div class="job-header">
           <h3>{{ job.jobTitle || job.title }}</h3>
           <span [class]="'badge badge-' + job.status">{{ job.status }}</span>
@@ -144,12 +129,9 @@
           <p><strong>Salaire:</strong> {{ formatCurrency(job.salaryMin) }} - {{ formatCurrency(job.salaryMax) }}</p>
           <p><strong>Candidats:</strong> {{ (candidates | count: job.id) }}</p>
         </div>
-        <div class="job-description">{{ job.requiredQualifications }}</div>
-        <button 
-          *ngIf="job.status === 'open'"
-          class="btn btn-sm btn-danger"
-          (click)="closeJob(job.id); $event.stopPropagation()"
-        >
+        <div class="job-description">{{ job.description }}</div>
+        <button *ngIf="job.status === 'open'" class="btn btn-sm btn-danger"
+          (click)="closeJob(job.id); $event.stopPropagation()">
           Fermer l'offre
         </button>
       </div>
@@ -197,13 +179,8 @@
   <!-- Candidates Tab -->
   <div *ngIf="activeTab === 'candidates'" class="candidates-section">
     <div class="filters-section">
-      <input
-        type="text"
-        placeholder="Rechercher par nom, email..."
-        class="form-control"
-        [(ngModel)]="searchText"
-        (change)="applyFilters()"
-      />
+      <input type="text" placeholder="Rechercher par nom, email..." class="form-control" [(ngModel)]="searchText"
+        (change)="applyFilters()" />
       <select class="form-control" [(ngModel)]="filterStatus" (change)="applyFilters()">
         <option value="">Tous les statuts</option>
         <option *ngFor="let status of candidateStatuses" [value]="status">{{ status }}</option>

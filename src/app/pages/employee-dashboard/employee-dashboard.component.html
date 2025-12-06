@@ -1,5 +1,5 @@
 <div class="employee-layout">
-  <!-- Sidebar -->
+  <!-- Modern Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">RH</div>
@@ -21,155 +21,172 @@
       </button>
     </nav>
 
-    <button class="btn-logout" (click)="logout()">Déconnexion</button>
+    <button class="btn-logout" (click)="logout()">
+      <span class="icon">🚪</span>
+      <span>Déconnexion</span>
+    </button>
   </aside>
 
   <!-- Main Content -->
   <main class="main-content">
     <!-- Top Bar -->
     <div class="top-bar">
-      <h1>Espace Personnel</h1>
-      <div class="user-info">
-        <span class="user-badge">Employé</span>
+      <h1>
+        <span *ngIf="activeTab === 'profile'">Mon Espace</span>
+        <span *ngIf="activeTab === 'payroll'">Mes Paiements</span>
+        <span *ngIf="activeTab === 'leaves'">Mes Absences</span>
+      </h1>
+      <div class="user-badge" *ngIf="employee">
+        {{ employee.firstName }} {{ employee.lastName }}
       </div>
     </div>
 
     <div class="content" *ngIf="!loading && employee">
       <!-- Profile Tab -->
-      <div *ngIf="activeTab === 'profile'" class="tab-content">
-        <div class="profile-card">
-          <div class="profile-header">
-            <div class="avatar">{{ (employee.firstName.charAt(0) + employee.lastName.charAt(0)).toUpperCase() }}</div>
-            <div class="profile-intro">
-              <h1>{{ employee.firstName }} {{ employee.lastName }}</h1>
-              <p>{{ employee.jobTitle }}</p>
+      <div *ngIf="activeTab === 'profile'" class="tab-content profile-layout">
+        <!-- Main Profile Card -->
+        <div class="profile-card-main">
+          <div class="avatar-large">
+            {{ (employee.firstName.charAt(0) + employee.lastName.charAt(0)).toUpperCase() }}
+          </div>
+          <h2 class="profile-name">{{ employee.firstName }} {{ employee.lastName }}</h2>
+          <p class="profile-role">{{ employee.jobTitle }}</p>
+
+          <div class="profile-stats">
+            <div class="stat-item">
+              <span class="stat-value">{{ formatCurrency(employee.salary) }}</span>
+              <span class="stat-label">Salaire Mensuel</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ employee.contractType }}</span>
+              <span class="stat-label">Contrat</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid">
+          <div class="detail-card">
+            <h3>Informations Personnelles</h3>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ employee.email }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Téléphone</span>
+              <span class="info-value">{{ employee.phoneNumber }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Date de Naissance</span>
+              <span class="info-value">{{ formatDate(employee.birthDate) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Nationalité</span>
+              <span class="info-value">{{ employee.nationality }}</span>
             </div>
           </div>
 
-          <div class="profile-sections">
-            <!-- Personal Info -->
-            <section class="profile-section">
-              <h2>Informations Personnelles</h2>
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>CIN</label>
-                  <p>{{ employee.cin }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Date de Naissance</label>
-                  <p>{{ formatDate(employee.birthDate) }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Email</label>
-                  <p>{{ employee.email }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Téléphone</label>
-                  <p>{{ employee.phoneNumber }}</p>
-                </div>
-                <div class="info-item col-span-2">
-                  <label>Adresse</label>
-                  <p>{{ employee.address }}</p>
-                </div>
-              </div>
-            </section>
+          <div class="detail-card">
+            <h3>Informations Professionnelles</h3>
+            <div class="info-row">
+              <span class="info-label">Département</span>
+              <span class="info-value">{{ employee.departmentName }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Date d'Embauche</span>
+              <span class="info-value">{{ formatDate(employee.hireDate) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">CIN</span>
+              <span class="info-value">{{ employee.cin }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Statut</span>
+              <span class="info-value">{{ employee.status }}</span>
+            </div>
+          </div>
 
-            <!-- Professional Info -->
-            <section class="profile-section">
-              <h2>Informations Professionnelles</h2>
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>Poste</label>
-                  <p>{{ employee.jobTitle }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Département</label>
-                  <p>{{ employee.departmentName }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Date d'Embauche</label>
-                  <p>{{ formatDate(employee.hireDate) }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Type de Contrat</label>
-                  <p>{{ employee.contractType }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Salaire Mensuel</label>
-                  <p class="salary">{{ formatCurrency(employee.salary) }}</p>
-                </div>
-                <div class="info-item">
-                  <label>Statut</label>
-                  <p><span class="badge" [class]="'badge-' + employee.status">{{ employee.status }}</span></p>
-                </div>
-              </div>
-            </section>
+          <div class="detail-card">
+            <h3>Adresse</h3>
+            <div class="info-row">
+              <span class="info-label">Rue</span>
+              <span class="info-value">{{ employee.address }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ville</span>
+              <span class="info-value">{{ employee.city }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Code Postal</span>
+              <span class="info-value">{{ employee.postalCode }}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Payroll Tab -->
       <div *ngIf="activeTab === 'payroll'" class="tab-content">
-        <h2>Mes Fiches de Paie</h2>
-        <div class="payroll-list">
-          <div *ngFor="let payroll of payrolls" class="payroll-card">
-            <div class="payroll-header">
-              <span class="period">{{ payroll.month }}/{{ payroll.year }}</span>
-              <span [class]="'badge badge-' + payroll.status">{{ payroll.status }}</span>
+        <div class="cards-grid">
+          <div *ngFor="let payroll of payrolls" class="modern-card">
+            <div class="card-header">
+              <span class="card-title">{{ payroll.month }}/{{ payroll.year }}</span>
+              <span [class]="'status-badge status-' + payroll.status">{{ payroll.status }}</span>
             </div>
-            <div class="payroll-details">
-              <div class="detail-row">
-                <span>Salaire de Base</span>
-                <strong>{{ formatCurrency(payroll.baseSalary) }}</strong>
+            <div class="card-body">
+              <div class="amount-display">{{ formatCurrency(payroll.netSalary) }}</div>
+              <div class="info-row">
+                <span class="info-label">Salaire de Base</span>
+                <span class="info-value">{{ formatCurrency(payroll.baseSalary) }}</span>
               </div>
-              <div class="detail-row">
-                <span>Primes</span>
-                <strong>{{ formatCurrency(payroll.allowances) }}</strong>
+              <div class="info-row">
+                <span class="info-label">Primes</span>
+                <span class="info-value text-success">+{{ formatCurrency(payroll.allowances) }}</span>
               </div>
-              <div class="detail-row">
-                <span>Déductions</span>
-                <strong>{{ formatCurrency(payroll.deductions) }}</strong>
+              <div class="info-row">
+                <span class="info-label">Déductions</span>
+                <span class="info-value text-danger">-{{ formatCurrency(payroll.deductions) }}</span>
               </div>
-              <div class="detail-row total">
-                <span>Salaire Net</span>
-                <strong>{{ formatCurrency(payroll.netSalary) }}</strong>
+              <div class="date-display" *ngIf="payroll.paymentDate">
+                <span class="icon">📅</span> Payé le {{ formatDate(payroll.paymentDate) }}
               </div>
-            </div>
-            <div class="payroll-footer" *ngIf="payroll.paymentDate">
-              <small>Payé le: {{ formatDate(payroll.paymentDate) }}</small>
             </div>
           </div>
-        </div>
-        <div *ngIf="payrolls.length === 0" class="empty-state">
-          <p>Aucune fiche de paie disponible</p>
+          <div *ngIf="payrolls.length === 0" class="empty-state">
+            <p>Aucune fiche de paie disponible pour le moment.</p>
+          </div>
         </div>
       </div>
 
       <!-- Leaves Tab -->
       <div *ngIf="activeTab === 'leaves'" class="tab-content">
-        <h2>Mes Congés et Absences</h2>
-        <div class="leaves-list">
-          <div *ngFor="let leave of leaves" class="leave-card">
-            <div class="leave-header">
-              <div class="leave-dates">
+        <div class="cards-grid">
+          <div *ngFor="let leave of leaves" class="modern-card">
+            <div class="card-header">
+              <span class="card-title">{{ leave.leaveType }}</span>
+              <span [class]="'status-badge status-' + leave.status">{{ leave.status }}</span>
+            </div>
+            <div class="card-body">
+              <div class="date-display">
+                <span class="icon">🗓️</span>
                 {{ formatDate(leave.startDate) }} - {{ formatDate(leave.endDate) }}
               </div>
-              <span [class]="'badge badge-' + leave.status">{{ leave.status }}</span>
-            </div>
-            <div class="leave-info">
-              <p><strong>Type:</strong> {{ leave.leaveType }}</p>
-              <p><strong>Raison:</strong> {{ leave.reason }}</p>
+              <p class="text-muted">{{ leave.reason }}</p>
+              <div class="info-row" *ngIf="leave.approvalDate">
+                <span class="info-label">Approuvé le</span>
+                <span class="info-value">{{ formatDate(leave.approvalDate) }}</span>
+              </div>
             </div>
           </div>
-        </div>
-        <div *ngIf="leaves.length === 0" class="empty-state">
-          <p>Aucun congé enregistré</p>
+          <div *ngIf="leaves.length === 0" class="empty-state">
+            <p>Aucune demande de congé enregistrée.</p>
+          </div>
         </div>
       </div>
     </div>
 
     <div *ngIf="loading" class="loading">
-      <p>Chargement...</p>
+      <div class="spinner"></div>
+      <p>Chargement de vos données...</p>
     </div>
   </main>
 </div>

@@ -11,7 +11,7 @@ export interface Payroll {
   deductions: number
   taxes: number
   netSalary: number
-  status: "pending" | "calculated" | "validated" | "paid"
+  status: "pending" | "validated" | "paid"
   paymentDate?: string
   currency: string
   notes?: string
