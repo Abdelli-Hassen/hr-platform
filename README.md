@@ -106,7 +106,7 @@ npm run seed
 ```
 
 This will create:
-- Admin user: `admin@hrplatform.tn` / `admin123`
+- Admin user: `admin@company.com` / `admin123`
 - Sample employees and data
 
 ## 🏃 Running the Application
@@ -219,12 +219,11 @@ Toggle dark mode using the moon/sun icon in the admin sidebar.
 After running the seed script:
 
 **Admin Account:**
-- Email: `admin@hrplatform.tn`
+- Email: `admin@company.com`
 - Password: `admin123`
 
 **Employee Account:**
-- Email: `employee@hrplatform.tn`
-- Password: `emp123`
+- Created by the admin inside the platform
 
 > ⚠️ **Important**: Change these credentials in production!
 
